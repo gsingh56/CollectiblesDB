@@ -7,33 +7,45 @@ class ClientSerializer(serializers.ModelSerializer):
         model = models.Client
         fields = '__all__'
 
-
 class AlbumGenreSerializer(serializers.ModelSerializer):
+    genre = serializers.CharField(max_length=20)
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        genre_representation = representation.pop('genre')
+        return genre_representation
+
     class Meta:
         model = models.AlbumGenre
-        fields = '__all__'
+        fields = ('genre',)
 
 
 class AlbumSerializer(serializers.ModelSerializer):
-    genre = serializers.StringRelatedField(many=True)
-
+    genre = AlbumGenreSerializer(many=True)
     class Meta:
         model = models.Album
-        fields = '__all__'
+        fields = ('id', 'name', 'artist', 'genre', 'year', )
 
 
 class ComicGenreSerializer(serializers.ModelSerializer):
+    genre = serializers.CharField(max_length=20)
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        genre_representation = representation.pop('genre')
+        return genre_representation
+
     class Meta:
         model = models.ComicGenre
-        fields = '__all__'
+        fields = ('genre', )
 
 
 class ComicBookSerializer(serializers.ModelSerializer):
-    genre = serializers.StringRelatedField(many=True)
+    genre = ComicGenreSerializer(many=True)
 
     class Meta:
         model = models.ComicBook
-        fields = '__all__'
+        fields = ('id', 'name', 'author', 'illustrator', 'genre', 'year')
 
 
 class SportCardSerializer(serializers.ModelSerializer):
@@ -47,6 +59,16 @@ class CustomSerializer(serializers.ModelSerializer):
         model = models. Custom
         fields = '__all__'
 
+class CollectibleSerializer(serializers.RelatedField):
+    
+    def to_representation(self, value):
+        if isinstance(value, models.Album):
+            return AlbumSerializer(value).data
+        elif isinstance(value, models.SportCard):
+            return SportCardSerializer(value).data
+        elif isinstance(value, models.ComicBook):
+            return ComicBookSerializer(value).data
+        return CustomSerializer(value).data
 
 class FormsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -54,7 +76,7 @@ class FormsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class MadeOFSerializer(serializers.ModelSerializer):
+class MadeOfSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Made_Of
         fields = '__all__'
@@ -99,6 +121,8 @@ class UserCollectionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ConsistsOfSerializer(serializers.ModelSerializer):
+    id = CollectibleSerializer(read_only=True, many=True)
+
     class Meta:
         model = models.Consists_Of
         fields = '__all__'
