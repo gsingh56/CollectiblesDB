@@ -61,6 +61,12 @@ urlpatterns = [
 
     #Searching sport cards
     path('search/collectibles/sportCards/<int:id>', views.SportCardDetails.as_view()),
+    path('search/collectibles/sportCards/<str:cardName>', views.SportCardDetails.as_view()),
+    path('search/collectibles/sportCards/type/<str:cardType>', views.SportCardDetails.as_view()),
+    path('search/collectibles/sportCards/sport/<str:sportName>', views.SportCardDetails.as_view()),
+    path('search/collectibles/sportCards/releaseyear/<int:release>', views.SportCardDetails.as_view()),
+
+    #Listing all custom collectibles
     path('collectibles/custom/', views.CustomList.as_view()),
     path('search/collectibles/custom/<int:pk>', views.CustomDetails.as_view()),
     path('collectibles/forms/', views.FormsList.as_view()),

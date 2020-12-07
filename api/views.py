@@ -371,7 +371,7 @@ class AlbumDetail(APIView):
         elif artistName != None:
             album = Album.objects.filter(artist=artistName)
         elif albumType != None:
-            album = Album.objects.filter(type=albumType).first()
+            album = Album.objects.filter(type=albumType)
         else:
             album = Album.objects.filter(year=release)
         album.delete()
@@ -429,13 +429,31 @@ class SportCardList(APIView):
 
 
 class SportCardDetails(APIView):
-    def get(self, request, pk, format=None):
-        sport = SportCard.objects.get(pk=pk)
+    def get(self, request, id=None, cardName=None, cardType=None, sportName=None, release=None, format=None):
+        if id != None:
+            sport = SportCard.objects.filter(id=id)
+        elif cardName != None:
+            sport = SportCard.objects.filter(name=cardName)
+        elif sportName != None:
+            sport = SportCard.objects.filter(sport=sportName)
+        elif cardType != None:
+            sport = SportCard.objects.filter(type=cardType)
+        else:
+            sport = SportCard.objects.filter(year=release)
         serializer = SportCardSerializer(sport)
         return Response(serializer.data)
 
-    def put(self, request, pk, format=None):
-        sport = SportCard.objects.filter(pk=pk).first()
+    def put(self, request, id=None, cardName=None, cardType=None, sportName=None, release=None, format=None):
+        if id != None:
+            sport = SportCard.objects.filter(id=id).first()
+        elif cardName != None:
+            sport = SportCard.objects.filter(name=cardName).first()
+        elif sportName != None:
+            sport = SportCard.objects.filter(sport=sportName).first()
+        elif cardType != None:
+            sport = SportCard.objects.filter(type=cardType).first()
+        else:
+            sport = SportCard.objects.filter(year=release).first()
         serializer = SportCardSerializer(sport, data=request.data)
         print(sport)
         if serializer.is_valid():
@@ -444,8 +462,17 @@ class SportCardDetails(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
-        sport = SportCard.objects.filter(pk=pk)
+    def delete(self, request, id=None, cardName=None, cardType=None, sportName=None, release=None, format=None):
+        if id != None:
+            sport = SportCard.objects.filter(id=id)
+        elif cardName != None:
+            sport = SportCard.objects.filter(name=cardName)
+        elif sportName != None:
+            sport = SportCard.objects.filter(sport=sportName)
+        elif cardType != None:
+            sport = SportCard.objects.filter(type=cardType)
+        else:
+            sport = SportCard.objects.filter(year=release)
         sport.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
