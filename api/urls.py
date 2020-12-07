@@ -31,8 +31,9 @@ urlpatterns = [
 
     #Searching albums
     path('search/collectibles/albums/<int:id>', views.AlbumDetail.as_view()),
-    path('search/collectibles/albums/name/<str:albumname>', views.AlbumDetail.as_view()),
-    path('search/collectibles/albums/artist/<str:artistname>', views.AlbumDetail.as_view()),
+    path('search/collectibles/albums/<str:albumName>', views.AlbumDetail.as_view()),
+    path('search/collectibles/albums/type/<str:albumType>', views.AlbumDetail.as_view()),
+    path('search/collectibles/albums/artist/<str:artistName>', views.AlbumDetail.as_view()),
     path('search/collectibles/albums/releaseyear/<int:release>', views.AlbumDetail.as_view()),
 
     #Album genres
@@ -45,7 +46,7 @@ urlpatterns = [
 
     #Searching comic books
     path('search/collectibles/comicBooks/<int:id>', views.ComicBookDetails.as_view()),
-    path('search/collectibles/comicBooks/name/<str:comicName>', views.ComicBookDetails.as_view()),
+    path('search/collectibles/comicBooks/<str:comicName>', views.ComicBookDetails.as_view()),
     path('search/collectibles/comicBooks/author/<str:authorName>', views.ComicBookDetails.as_view()),
     path('search/collectibles/comicBooks/illustrator/<str:illustratorName>', views.ComicBookDetails.as_view()),
     path('search/collectibles/comicBooks/releaseyear/<int:release>', views.ComicBookDetails.as_view()),
@@ -54,8 +55,12 @@ urlpatterns = [
     path('collectibles/comicGenre/', views.ComicGenreList.as_view()),
     path('search/collectibles/comicGenre/<int:pk>',
          views.ComicGenreDetails.as_view()),
+
+    #List all sport cards
     path('collectibles/sportCards/', views.SportCardList.as_view()),
-    path('search/collectibles/sportCards/<int:pk>', views.SportCardDetails.as_view()),
+
+    #Searching sport cards
+    path('search/collectibles/sportCards/<int:id>', views.SportCardDetails.as_view()),
     path('collectibles/custom/', views.CustomList.as_view()),
     path('search/collectibles/custom/<int:pk>', views.CustomDetails.as_view()),
     path('collectibles/forms/', views.FormsList.as_view()),

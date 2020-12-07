@@ -230,7 +230,7 @@ class ComicBookList(APIView):
 
 
 class ComicBookDetails(APIView):
-    def get(self, request, id=None, comicName=None, authorName=None, illustratorName=None, comicType=None, release=None, format=None):
+    def get(self, request, id=None, comicName=None, authorName=None, illustratorName=None, release=None, format=None):
         if id != None:
             comicBook = ComicBook.objects.filter(id=id)
         elif comicName != None:
@@ -239,14 +239,12 @@ class ComicBookDetails(APIView):
             comicBook = ComicBook.objects.filter(author=authorName)
         elif release != None:
             comicBook = ComicBook.objects.filter(year=release)
-        elif illustratorName != None:
-            comicBook = ComicBook.objects.filter(illustrator=illustratorName)
         else:
-            comicBook = ComicBook.objects.filter(type=comicType)
+            comicBook = ComicBook.objects.filter(illustrator=illustratorName)
         serializer = ComicBookSerializer(comicBook, many=True)
         return Response(serializer.data)
 
-    def put(self, request, id=None, comicName=None, authorName=None, illustratorName=None, comicType=None, release=None, format=None):
+    def put(self, request, id=None, comicName=None, authorName=None, illustratorName=None, release=None, format=None):
         if id != None:
             comicBook = ComicBook.objects.filter(id=id).first()
         elif comicName != None:
@@ -255,10 +253,8 @@ class ComicBookDetails(APIView):
             comicBook = ComicBook.objects.filter(author=authorName).first()
         elif release != None:
             comicBook = ComicBook.objects.filter(year=release)
-        elif illustratorName != None:
-            comicBook = ComicBook.objects.filter(illustrator=illustratorName).first()
         else:
-            comicBook = ComicBook.objects.filter(type=comicType).first()
+            comicBook = ComicBook.objects.filter(illustrator=illustratorName).first()
         serializer = ComicBookSerializer(comicBook, data=request.data)
         print(comicBook)
         if serializer.is_valid():
@@ -267,7 +263,7 @@ class ComicBookDetails(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, id=None, comicName=None, authorName=None, illustratorName=None, comicType=None, release=None, format=None):
+    def delete(self, request, id=None, comicName=None, authorName=None, illustratorName=None, release=None, format=None):
         if id != None:
             comicBook = ComicBook.objects.filter(id=id)
         elif comicName != None:
@@ -276,10 +272,8 @@ class ComicBookDetails(APIView):
             comicBook = ComicBook.objects.filter(author=authorName)
         elif release != None:
             comicBook = ComicBook.objects.filter(year=release)
-        elif illustratorName != None:
-            comicBook = ComicBook.objects.filter(illustrator=illustratorName)
         else:
-            comicBook = ComicBook.objects.filter(type=comicType)
+            comicBook = ComicBook.objects.filter(illustrator=illustratorName)
         comicBook.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -337,27 +331,31 @@ class AlbumList(APIView):
 
 class AlbumDetail(APIView):
 
-    def get(self, request, id=None, albumname=None, artistname=None, release=None, format=None):
+    def get(self, request, id=None, albumName=None, artistName=None, release=None, albumType=None, format=None):
         if id != None:
             album = Album.objects.filter(id=id)
-        elif albumname != None:
-            album = Album.objects.filter(name=albumname)
-        elif artistname != None:
-            album = Album.objects.filter(artist=artistname)
+        elif albumName != None:
+            album = Album.objects.filter(name=albumName)
+        elif artistName != None:
+            album = Album.objects.filter(artist=artistName)
+        elif albumType != None:
+            album = Album.objects.filter(type=albumType).first()
         else:
             album = Album.objects.filter(year=release)
         serializer = AlbumSerializer(album, many=True)
         return Response(serializer.data)
 
-    def put(self, request, id=None, albumname=None, artistname=None, release=None, format=None):
+    def put(self, request, id=None, albumName=None, artistName=None, release=None, albumType=None, format=None):
         if id != None:
-            album = Album.objects.filter(id=id)
-        elif albumname != None:
-            album = Album.objects.filter(name=albumname)
-        elif artistname != None:
-            album = Album.objects.filter(artist=artistname)
+            album = Album.objects.filter(id=id).first()
+        elif albumName != None:
+            album = Album.objects.filter(name=albumName).first()
+        elif artistName != None:
+            album = Album.objects.filter(artist=artistName).first()
+        elif albumType != None:
+            album = Album.objects.filter(type=albumType).first()
         else:
-            album = Album.objects.filter(year=release)
+            album = Album.objects.filter(year=release).first()
         serializer = AlbumSerializer(album, data=request.data)
         if serializer.is_valid():
             print(request.data)
@@ -365,13 +363,15 @@ class AlbumDetail(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, id=None, albumname=None, artistname=None, release=None, format=None):
+    def delete(self, request, id=None, albumName=None, artistName=None, release=None, albumType=None, format=None):
         if id != None:
             album = Album.objects.filter(id=id)
-        elif albumname != None:
-            album = Album.objects.filter(name=albumname)
-        elif artistname != None:
-            album = Album.objects.filter(artist=artistname)
+        elif albumName != None:
+            album = Album.objects.filter(name=albumName)
+        elif artistName != None:
+            album = Album.objects.filter(artist=artistName)
+        elif albumType != None:
+            album = Album.objects.filter(type=albumType).first()
         else:
             album = Album.objects.filter(year=release)
         album.delete()
