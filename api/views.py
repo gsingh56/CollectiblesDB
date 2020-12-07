@@ -24,23 +24,35 @@ class ClientDetail(APIView):
 
     def get(self, request, id=None, user=None, clientname=None, num=None, format=None):
         if(id != None and user != None):
-            client = Client.objects.get(userid=id, username=user)
+            client = Client.objects.filter(userid=id, username=user)
         elif(id != None):
-            client = Client.objects.get(userid=id)
+            client = Client.objects.filter(userid=id)
         elif(user != None):
-            client = Client.objects.get(username=user)
+            client = Client.objects.filter(username=user)
         elif(clientname != None):
-            client = Client.objects.get(name=clientname)
+            client = Client.objects.filter(name=clientname)
         else:
-            client = Client.objects.get(phonenumber=num)
-        serializer = ClientSerializer(client)
+            client = Client.objects.filter(phonenumber=num)
+        serializer = ClientSerializer(client, many=True)
         return Response(serializer.data)
 
-    def put(self, request, id, user, format=None):
-        client = Client.objects.filter(
-            userid=id, username=user).first()
+    def put(self, request, id=None, user=None, clientname=None, num=None, format=None):
+        if(id != None and user != None):
+            client = Client.objects.filter(
+            userid=id, username=user, cFlag=1).first()
+        elif(id != None):
+            client = Client.objects.filter(
+            userid=id, cFlag=1).first()
+        elif(user != None):
+            client = Client.objects.filter(
+            username=user, cFlag=1).first()
+        elif(clientname != None):
+            client = Client.objects.filter(
+            name=clientname, cFlag=1).first()
+        else:
+            client = Client.objects.filter(
+            phonenumber=num, cFlag=1).first()
         serializer = ClientSerializer(client, data=request.data)
-        print(client)
         if serializer.is_valid():
             print(request.data)
             serializer.save()
@@ -70,21 +82,34 @@ class CollectorDetail(APIView):
 
     def get(self, request, id=None, user=None, clientname=None, num=None, format=None):
         if(id != None and user != None):
-            client = Client.objects.get(userid=id, username=user, cFlag=1)
+            client = Client.objects.filter(userid=id, username=user, cFlag=1)
         elif(id != None):
-            client = Client.objects.get(userid=id, cFlag=1)
+            client = Client.objects.filter(userid=id, cFlag=1)
         elif(user != None):
-            client = Client.objects.get(username=user, cFlag=1)
+            client = Client.objects.filter(username=user, cFlag=1)
         elif(clientname != None):
-            client = Client.objects.get(name=clientname, cFlag=1)
+            client = Client.objects.filter(name=clientname, cFlag=1)
         else:
-            client = Client.objects.get(phonenumber=num, cFlag=1)
-        serializer = ClientSerializer(client)
+            client = Client.objects.filter(phonenumber=num, cFlag=1)
+        serializer = ClientSerializer(client, many=True)
         return Response(serializer.data)
 
-    def put(self, request, id, user, format=None):
-        client = Client.objects.filter(
+    def put(self, request, id=None, user=None, clientname=None, num=None, format=None):
+        if(id != None and user != None):
+            client = Client.objects.filter(
             userid=id, username=user, cFlag=1).first()
+        elif(id != None):
+            client = Client.objects.filter(
+            userid=id, cFlag=1).first()
+        elif(user != None):
+            client = Client.objects.filter(
+            username=user, cFlag=1).first()
+        elif(clientname != None):
+            client = Client.objects.filter(
+            name=clientname, cFlag=1).first()
+        else:
+            client = Client.objects.filter(
+            phonenumber=num, cFlag=1).first()
         serializer = ClientSerializer(client, data=request.data)
         print(client)
         if serializer.is_valid():
@@ -102,21 +127,34 @@ class SellerDetail(APIView):
 
     def get(self, request, id=None, user=None, clientname=None, num=None, format=None):
         if(id != None and user != None):
-            client = Client.objects.get(userid=id, username=user, sFlag=1)
+            client = Client.objects.filter(userid=id, username=user, sFlag=1)
         elif(id != None):
-            client = Client.objects.get(userid=id, sFlag=1)
+            client = Client.objects.filter(userid=id, sFlag=1)
         elif(user != None):
-            client = Client.objects.get(username=user, sFlag=1)
+            client = Client.objects.filter(username=user, sFlag=1)
         elif(clientname != None):
-            client = Client.objects.get(name=clientname, sFlag=1)
+            client = Client.objects.filter(name=clientname, sFlag=1)
         else:
-            client = Client.objects.get(phonenumber=num, sFlag=1)
-        serializer = ClientSerializer(client)
+            client = Client.objects.filter(phonenumber=num, sFlag=1)
+        serializer = ClientSerializer(client, many=True)
         return Response(serializer.data)
 
-    def put(self, request, id, user, format=None):
-        client = Client.objects.filter(
-            userid=id, username=user, sFlag=1).first()
+    def put(self, request, id=None, user=None, clientname=None, num=None, format=None):
+        if(id != None and user != None):
+            client = Client.objects.filter(
+            userid=id, username=user, cFlag=1).first()
+        elif(id != None):
+            client = Client.objects.filter(
+            userid=id, cFlag=1).first()
+        elif(user != None):
+            client = Client.objects.filter(
+            username=user, cFlag=1).first()
+        elif(clientname != None):
+            client = Client.objects.filter(
+            name=clientname, cFlag=1).first()
+        else:
+            client = Client.objects.filter(
+            phonenumber=num, cFlag=1).first()
         serializer = ClientSerializer(client, data=request.data)
         print(client)
         if serializer.is_valid():

@@ -17,8 +17,8 @@ class Client(models.Model):
     class Meta:
         unique_together = (('userid', 'username'))
 
-    def __str__(self):
-        return self.userid + " " + self.username + " " + self.password + " " + self.phonenumber + " " + self.name + " " + self.cFlag + " " + self.sFlag + " " + self.website
+    #def __str__(self):
+    #    return self.userid + " " + self.username + " " + self.password + " " + self.phonenumber + " " + self.name + " " + self.cFlag + " " + self.sFlag + " " + self.website
 
 
 class Collectible(models.Model):
