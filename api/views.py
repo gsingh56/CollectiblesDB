@@ -23,13 +23,13 @@ class ClientList (APIView):
 class ClientDetail(APIView):
 
     def get(self, request, id=None, user=None, clientname=None, num=None, format=None):
-        if(id != None and user != None):
+        if id != None and user != None:
             client = Client.objects.filter(userid=id, username=user)
-        elif(id != None):
+        elif id != None:
             client = Client.objects.filter(userid=id)
-        elif(user != None):
+        elif user != None:
             client = Client.objects.filter(username=user)
-        elif(clientname != None):
+        elif clientname != None:
             client = Client.objects.filter(name=clientname)
         else:
             client = Client.objects.filter(phonenumber=num)
@@ -37,16 +37,16 @@ class ClientDetail(APIView):
         return Response(serializer.data)
 
     def put(self, request, id=None, user=None, clientname=None, num=None, format=None):
-        if(id != None and user != None):
+        if id != None and user != None:
             client = Client.objects.filter(
             userid=id, username=user, cFlag=1).first()
-        elif(id != None):
+        elif id != None:
             client = Client.objects.filter(
             userid=id, cFlag=1).first()
-        elif(user != None):
+        elif user != None:
             client = Client.objects.filter(
             username=user, cFlag=1).first()
-        elif(clientname != None):
+        elif clientname != None:
             client = Client.objects.filter(
             name=clientname, cFlag=1).first()
         else:
@@ -59,8 +59,22 @@ class ClientDetail(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, id, user, format=None):
-        client = Client.objects.filter(userid=id, username=user)
+    def delete(self, request, id=None, user=None, clientname=None, num=None, format=None):
+        if id != None and user != None:
+            client = Client.objects.filter(
+            userid=id, username=user, cFlag=1).first()
+        elif id != None:
+            client = Client.objects.filter(
+            userid=id, cFlag=1).first()
+        elif user != None:
+            client = Client.objects.filter(
+            username=user, cFlag=1).first()
+        elif clientname != None:
+            client = Client.objects.filter(
+            name=clientname, cFlag=1).first()
+        else:
+            client = Client.objects.filter(
+            phonenumber=num, cFlag=1).first()
         client.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -81,13 +95,13 @@ class CollectorList(APIView):
 class CollectorDetail(APIView):
 
     def get(self, request, id=None, user=None, clientname=None, num=None, format=None):
-        if(id != None and user != None):
+        if id != None and user != None:
             client = Client.objects.filter(userid=id, username=user, cFlag=1)
-        elif(id != None):
+        elif id != None:
             client = Client.objects.filter(userid=id, cFlag=1)
-        elif(user != None):
+        elif user != None:
             client = Client.objects.filter(username=user, cFlag=1)
-        elif(clientname != None):
+        elif clientname != None:
             client = Client.objects.filter(name=clientname, cFlag=1)
         else:
             client = Client.objects.filter(phonenumber=num, cFlag=1)
@@ -95,16 +109,16 @@ class CollectorDetail(APIView):
         return Response(serializer.data)
 
     def put(self, request, id=None, user=None, clientname=None, num=None, format=None):
-        if(id != None and user != None):
+        if id != None and user != None:
             client = Client.objects.filter(
             userid=id, username=user, cFlag=1).first()
-        elif(id != None):
+        elif id != None:
             client = Client.objects.filter(
             userid=id, cFlag=1).first()
-        elif(user != None):
+        elif user != None:
             client = Client.objects.filter(
             username=user, cFlag=1).first()
-        elif(clientname != None):
+        elif clientname != None:
             client = Client.objects.filter(
             name=clientname, cFlag=1).first()
         else:
@@ -118,21 +132,35 @@ class CollectorDetail(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, id, user, format=None):
-        client = Client.objects.filter(userid=id, username=user, cFlag=1)
+    def delete(self, request, id=None, user=None, clientname=None, num=None, format=None):
+        if id != None and user != None:
+            client = Client.objects.filter(
+            userid=id, username=user, cFlag=1).first()
+        elif id != None:
+            client = Client.objects.filter(
+            userid=id, cFlag=1).first()
+        elif user != None:
+            client = Client.objects.filter(
+            username=user, cFlag=1).first()
+        elif clientname != None:
+            client = Client.objects.filter(
+            name=clientname, cFlag=1).first()
+        else:
+            client = Client.objects.filter(
+            phonenumber=num, cFlag=1).first()
         client.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class SellerDetail(APIView):
 
     def get(self, request, id=None, user=None, clientname=None, num=None, format=None):
-        if(id != None and user != None):
+        if id != None and user != None:
             client = Client.objects.filter(userid=id, username=user, sFlag=1)
-        elif(id != None):
+        elif id != None:
             client = Client.objects.filter(userid=id, sFlag=1)
-        elif(user != None):
+        elif user != None:
             client = Client.objects.filter(username=user, sFlag=1)
-        elif(clientname != None):
+        elif clientname != None:
             client = Client.objects.filter(name=clientname, sFlag=1)
         else:
             client = Client.objects.filter(phonenumber=num, sFlag=1)
@@ -140,21 +168,16 @@ class SellerDetail(APIView):
         return Response(serializer.data)
 
     def put(self, request, id=None, user=None, clientname=None, num=None, format=None):
-        if(id != None and user != None):
-            client = Client.objects.filter(
-            userid=id, username=user, cFlag=1).first()
-        elif(id != None):
-            client = Client.objects.filter(
-            userid=id, cFlag=1).first()
-        elif(user != None):
-            client = Client.objects.filter(
-            username=user, cFlag=1).first()
-        elif(clientname != None):
-            client = Client.objects.filter(
-            name=clientname, cFlag=1).first()
+        if id != None and user != None:
+            client = Client.objects.filter(userid=id, username=user, sFlag=1)
+        elif id != None:
+            client = Client.objects.filter(userid=id, sFlag=1)
+        elif user != None:
+            client = Client.objects.filter(username=user, sFlag=1)
+        elif clientname != None:
+            client = Client.objects.filter(name=clientname, sFlag=1)
         else:
-            client = Client.objects.filter(
-            phonenumber=num, cFlag=1).first()
+            client = Client.objects.filter(phonenumber=num, sFlag=1)
         serializer = ClientSerializer(client, data=request.data)
         print(client)
         if serializer.is_valid():
@@ -163,8 +186,17 @@ class SellerDetail(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, id, user, format=None):
-        client = Client.objects.filter(userid=id, username=user, sFlag=1)
+    def delete(self, request, id=None, user=None, clientname=None, num=None, format=None):
+        if id != None and user != None:
+            client = Client.objects.filter(userid=id, username=user, sFlag=1)
+        elif id != None:
+            client = Client.objects.filter(userid=id, sFlag=1)
+        elif user != None:
+            client = Client.objects.filter(username=user, sFlag=1)
+        elif clientname != None:
+            client = Client.objects.filter(name=clientname, sFlag=1)
+        else:
+            client = Client.objects.filter(phonenumber=num, sFlag=1)
         client.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -182,21 +214,6 @@ class SellerList(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class AlbumList(APIView):
-
-    def get(self, request, format=None):
-        albums = Album.objects.all()
-        serializer = AlbumSerializer(albums, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, format=None):
-        serializer = AlbumGenreSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class ComicBookList(APIView):
     def get(self, request, format=None):
@@ -270,26 +287,60 @@ class ComicGenredetails(APIView):
         comicGenre.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class AlbumList(APIView):
+
+    def get(self, request, format=None):
+        albums = Album.objects.all()
+        serializer = AlbumSerializer(albums, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = AlbumSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class AlbumDetail(APIView):
 
-    def get(self, request, pk, format=None):
-        album = Album.objects.get(pk=pk)
-        serializer = AlbumSerializer(album)
+    def get(self, request, id=None, albumname=None, artistname=None, release=None, format=None):
+        if id != None:
+            album = Album.objects.filter(id=id)
+        elif albumname != None:
+            album = Album.objects.filter(name=albumname)
+        elif artistname != None:
+            album = Album.objects.filter(artist=artistname)
+        else:
+            album = Album.objects.filter(year=release)
+        serializer = AlbumSerializer(album, many=True)
         return Response(serializer.data)
 
-    def put(self, request, pk, format=None):
-        album = Album.objects.filter(pk=pk).first()
+    def put(self, request, id=None, albumname=None, artistname=None, release=None, format=None):
+        if id != None:
+            album = Album.objects.filter(id=id)
+        elif albumname != None:
+            album = Album.objects.filter(name=albumname)
+        elif artistname != None:
+            album = Album.objects.filter(artist=artistname)
+        else:
+            album = Album.objects.filter(year=release)
         serializer = AlbumSerializer(album, data=request.data)
-        print(album)
         if serializer.is_valid():
             print(request.data)
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
-        album = Album.objects.filter(pk=pk)
+    def delete(self, request, id=None, albumname=None, artistname=None, release=None, format=None):
+        if id != None:
+            album = Album.objects.filter(id=id)
+        elif albumname != None:
+            album = Album.objects.filter(name=albumname)
+        elif artistname != None:
+            album = Album.objects.filter(artist=artistname)
+        else:
+            album = Album.objects.filter(year=release)
         album.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

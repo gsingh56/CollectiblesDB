@@ -22,9 +22,15 @@ urlpatterns = [
     path('search/clients/sellers/phone/<int:num>', views.SellerDetail().as_view()),
 
     path('collectibles/albums/', views.AlbumList.as_view()),
-    path('search/collectibles/albums/<int:pk>', views.AlbumDetail.as_view()),
-    path('collectibles/albumsGenre/', views.AlbumGenreList.as_view()),
-    path('search/collectibles/albumsGenre/<int:pk>',
+
+    #Searching albums
+    path('search/collectibles/albums/<int:id>', views.AlbumDetail.as_view()),
+    path('search/collectibles/albums/name/<str:albumname>', views.AlbumDetail.as_view()),
+    path('search/collectibles/albums/artist/<str:artistname>', views.AlbumDetail.as_view()),
+    path('search/collectibles/albums/releaseyear/<int:release>', views.AlbumDetail.as_view()),
+
+    path('collectibles/albumGenre/', views.AlbumGenreList.as_view()),
+    path('search/collectibles/albumGenre/<int:pk>',
          views.AlbumGenreDetails.as_view()),
     path('collectibles/comicBooks/', views.ComicBookList.as_view()),
     path('search/collectibles/comicBooks/<int:pk>', views.ComicBookDetails.as_view()),

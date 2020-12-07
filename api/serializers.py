@@ -9,7 +9,6 @@ class ClientSerializer(serializers.ModelSerializer):
 
 class AlbumGenreSerializer(serializers.ModelSerializer):
     genre = serializers.CharField(max_length=20)
-
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         genre_representation = representation.pop('genre')
@@ -19,9 +18,16 @@ class AlbumGenreSerializer(serializers.ModelSerializer):
         model = models.AlbumGenre
         fields = ('genre',)
 
-
 class AlbumSerializer(serializers.ModelSerializer):
     genre = AlbumGenreSerializer(many=True)
+
+    def create(self, validated_data):
+        genres_data = validated_data.pop('genre')
+        album = models.Album.objects.create(**validated_data)
+        for genre_data in genres_data:
+            models.AlbumGenre.objects.create(albumID=album, **genre_data)
+        return album
+
     class Meta:
         model = models.Album
         fields = ('id', 'name', 'artist', 'genre', 'year', )
