@@ -2,9 +2,14 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    #List clients
     path('clients/', views.ClientList.as_view()),
 
-     #Searching clients
+    #List collectors/sellers
+    path('clients/collectors/', views.CollectorList().as_view()),
+    path('clients/sellers/', views.SellerList().as_view()),
+
+    #Searching clients
     path('search/clients/<int:id>/<str:user>', views.ClientDetail.as_view()),
     path('search/clients/<int:id>', views.ClientDetail.as_view()),
     path('search/clients/<str:user>', views.ClientDetail.as_view()),
@@ -21,6 +26,7 @@ urlpatterns = [
     path('search/clients/collectors/phone/<int:num>', views.CollectorDetail().as_view()),
     path('search/clients/sellers/phone/<int:num>', views.SellerDetail().as_view()),
 
+    #List albums
     path('collectibles/albums/', views.AlbumList.as_view()),
 
     #Searching albums
@@ -29,14 +35,25 @@ urlpatterns = [
     path('search/collectibles/albums/artist/<str:artistname>', views.AlbumDetail.as_view()),
     path('search/collectibles/albums/releaseyear/<int:release>', views.AlbumDetail.as_view()),
 
+    #Album genres
     path('collectibles/albumGenre/', views.AlbumGenreList.as_view()),
     path('search/collectibles/albumGenre/<int:pk>',
          views.AlbumGenreDetails.as_view()),
+     
+    #List all comic books
     path('collectibles/comicBooks/', views.ComicBookList.as_view()),
-    path('search/collectibles/comicBooks/<int:pk>', views.ComicBookDetails.as_view()),
-    path('collectibles/comicGenre/', views.ComicgenreList.as_view()),
+
+    #Searching comic books
+    path('search/collectibles/comicBooks/<int:id>', views.ComicBookDetails.as_view()),
+    path('search/collectibles/comicBooks/name/<str:comicName>', views.ComicBookDetails.as_view()),
+    path('search/collectibles/comicBooks/author/<str:authorName>', views.ComicBookDetails.as_view()),
+    path('search/collectibles/comicBooks/illustrator/<str:illustratorName>', views.ComicBookDetails.as_view()),
+    path('search/collectibles/comicBooks/releaseyear/<int:release>', views.ComicBookDetails.as_view()),
+
+    #Comic genres
+    path('collectibles/comicGenre/', views.ComicGenreList.as_view()),
     path('search/collectibles/comicGenre/<int:pk>',
-         views.ComicGenredetails.as_view()),
+         views.ComicGenreDetails.as_view()),
     path('collectibles/sportCards/', views.SportCardList.as_view()),
     path('search/collectibles/sportCards/<int:pk>', views.SportCardDetails.as_view()),
     path('collectibles/custom/', views.CustomList.as_view()),
@@ -74,7 +91,4 @@ urlpatterns = [
     path('api/admin/', views.AdminList.as_view()),
     path('dealswith/', views.DealsWithList.as_view()),
     path('search/dealswith/<int:id>', views.DealsWithDetail.as_view()),
-    path('clients/collectors/', views.CollectorList().as_view()),
-    path('clients/sellers/', views.SellerList().as_view()),
-
 ]

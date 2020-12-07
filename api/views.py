@@ -230,13 +230,35 @@ class ComicBookList(APIView):
 
 
 class ComicBookDetails(APIView):
-    def get(self, request, pk, format=None):
-        comicBook = ComicBook.objects.get(pk=pk)
-        serializer = ComicBookSerializer(comicBook)
+    def get(self, request, id=None, comicName=None, authorName=None, illustratorName=None, comicType=None, release=None, format=None):
+        if id != None:
+            comicBook = ComicBook.objects.filter(id=id)
+        elif comicName != None:
+            comicBook = ComicBook.objects.filter(name=comicName)
+        elif authorName != None:
+            comicBook = ComicBook.objects.filter(author=authorName)
+        elif release != None:
+            comicBook = ComicBook.objects.filter(year=release)
+        elif illustratorName != None:
+            comicBook = ComicBook.objects.filter(illustrator=illustratorName)
+        else:
+            comicBook = ComicBook.objects.filter(type=comicType)
+        serializer = ComicBookSerializer(comicBook, many=True)
         return Response(serializer.data)
 
-    def put(self, request, pk, format=None):
-        comicBook = ComicBook.objects.filter(pk=pk).first()
+    def put(self, request, id=None, comicName=None, authorName=None, illustratorName=None, comicType=None, release=None, format=None):
+        if id != None:
+            comicBook = ComicBook.objects.filter(id=id).first()
+        elif comicName != None:
+            comicBook = ComicBook.objects.filter(name=comicName).first()
+        elif authorName != None:
+            comicBook = ComicBook.objects.filter(author=authorName).first()
+        elif release != None:
+            comicBook = ComicBook.objects.filter(year=release)
+        elif illustratorName != None:
+            comicBook = ComicBook.objects.filter(illustrator=illustratorName).first()
+        else:
+            comicBook = ComicBook.objects.filter(type=comicType).first()
         serializer = ComicBookSerializer(comicBook, data=request.data)
         print(comicBook)
         if serializer.is_valid():
@@ -245,13 +267,24 @@ class ComicBookDetails(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
-        comicBook = ComicBook.objects.filter(pk=pk)
+    def delete(self, request, id=None, comicName=None, authorName=None, illustratorName=None, comicType=None, release=None, format=None):
+        if id != None:
+            comicBook = ComicBook.objects.filter(id=id)
+        elif comicName != None:
+            comicBook = ComicBook.objects.filter(name=comicName)
+        elif authorName != None:
+            comicBook = ComicBook.objects.filter(author=authorName)
+        elif release != None:
+            comicBook = ComicBook.objects.filter(year=release)
+        elif illustratorName != None:
+            comicBook = ComicBook.objects.filter(illustrator=illustratorName)
+        else:
+            comicBook = ComicBook.objects.filter(type=comicType)
         comicBook.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ComicgenreList(APIView):
+class ComicGenreList(APIView):
     def get(self, request, format=None):
         comicGenre = ComicGenre.objects.all()
         serializer = ComicGenreSerializer(comicGenre, many=True)
@@ -265,7 +298,7 @@ class ComicgenreList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ComicGenredetails(APIView):
+class ComicGenreDetails(APIView):
 
     def get(self, request, pk, format=None):
         comicGenre = ComicGenre.objects.get(pk=pk)

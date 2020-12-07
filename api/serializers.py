@@ -28,6 +28,23 @@ class AlbumSerializer(serializers.ModelSerializer):
             models.AlbumGenre.objects.create(albumID=album, **genre_data)
         return album
 
+    def update(self, instance, validated_data):
+        genres_data = validated_data.pop('genre')
+        genres = (instance.genre).all()
+        genres = list(genres)
+        instance.id = validated_data.get('id', instance.id)
+        instance.name = validated_data.get('name', instance.name)
+        instance.type = validated_data.get('type', instance.type)
+        instance.year = validated_data.get('year', instance.year)
+        instance.save()
+
+        for genre_data in genres_data:
+            genre = genres.pop(0)
+            genre.albumID = genre_data.get('albumID', genre.albumID)
+            genre.genre = genre_data.get('genre', genre.genre)
+            genre.save()
+        return instance
+
     class Meta:
         model = models.Album
         fields = ('id', 'name', 'artist', 'genre', 'year', )
@@ -48,6 +65,13 @@ class ComicGenreSerializer(serializers.ModelSerializer):
 
 class ComicBookSerializer(serializers.ModelSerializer):
     genre = ComicGenreSerializer(many=True)
+
+    def create(self, validated_data):
+        genres_data = validated_data.pop('genre')
+        comic = models.ComicBook.objects.create(**validated_data)
+        for genre_data in genres_data:
+            models.ComicGenre.objects.create(comicID=comic, **genre_data)
+        return comic
 
     class Meta:
         model = models.ComicBook
