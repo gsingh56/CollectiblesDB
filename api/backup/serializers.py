@@ -2,16 +2,10 @@ from rest_framework.fields import Field
 from rest_framework import serializers
 from . import models
 
-
 class ClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Client
-        fields = ('username', 'phonenumber', 'name')
-
-class SellerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Client
-        fields = ('username', 'phonenumber', 'name', 'website')
+        fields = '__all__'
 
 class AlbumGenreSerializer(serializers.ModelSerializer):
     genre = serializers.CharField(max_length=20)
@@ -24,7 +18,6 @@ class AlbumGenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.AlbumGenre
         fields = ('genre',)
-
 
 class AlbumSerializer(serializers.ModelSerializer):
     genre = AlbumGenreSerializer(many=True)
@@ -89,8 +82,7 @@ class ComicBookSerializer(serializers.ModelSerializer):
         instance.id = validated_data.get('id', instance.id)
         instance.name = validated_data.get('name', instance.name)
         instance.author = validated_data.get('author', instance.author)
-        instance.illustrator = validated_data.get(
-            'illustrator', instance.illustrator)
+        instance.illustrator = validated_data.get('illustrator', instance.illustrator)
         instance.type = validated_data.get('type', instance.type)
         instance.year = validated_data.get('year', instance.year)
         instance.save()
@@ -114,30 +106,57 @@ class SportCardSerializer(serializers.ModelSerializer):
 
 
 class CustomSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.Custom
         fields = '__all__'
 
+class CollectibleField(Field):
+    
+    def to_representation(self, value):
+        if isinstance(value, models.Album):
+            return AlbumSerializer(value).data
+        elif isinstance(value, models.SportCard):
+            return SportCardSerializer(value).data
+        elif isinstance(value, models.ComicBook):
+            return ComicBookSerializer(value).data
+        return CustomSerializer(value).data
+    
+    def to_internal_value(self, data):
+        collectible_type = data.pop('collectibleID')
+        if collectible_type == 'Album':
+            serializer = AlbumSerializer(data)
+        elif collectible_type == 'ComicBook':
+            serializer = ComicBookSerializer(data)
+        elif collectible_type == 'SportCard':
+            serializer = SportCardSerializer(data)
+        else:
+            serializer = CustomSerializer(data)
+        if serializer.is_valid():
+            obj = serializer.save()
+        else:
+            raise serializers.ValidationError(serializer.errors)
+
+        return obj
 
 class CollectibleSerializer(serializers.ModelSerializer):
+    collectibleID = CollectibleField()
 
     class Meta:
         model = models.Collectible
         fields = '__all__'
 
-
 class FormsSerializer(serializers.ModelSerializer):
+    
 
     class Meta:
         model = models.Forms
-        exclude = ('id', )
+        fields = '__all__'
 
 
 class MadeOfSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Made_Of
-        exclude = ('id', )
+        fields = '__all__'
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -161,65 +180,55 @@ class PaymentSerializer(serializers.ModelSerializer):
 class ShippingMethodSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Shipping_Method
-        exclude = ('id',)
-
+        fields = '__all__'
 
 class WarehouseSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Warehouse
-        exclude = ('id',)
-
+        fields = '__all__'
 
 class ModeratesSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Moderates
-        exclude = ('id',)
-
+        fields = '__all__'
 
 class UserCollectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.UserCollection
-        exclude = ('id',)
-
+        fields = '__all__'
 
 class ConsistsOfSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Consists_Of
-        exclude = ('id',)
-
+        fields = '__all__'
 
 class SellsSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Sells
-        exclude = ('id',)
-
+        fields = '__all__'
 
 class WantsSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Wants
-        exclude = ('id',)
-
+        fields = '__all__'
 
 class CollectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Collection
-        fields ='__all__'
-
+        fields = '__all__'
 
 class ManagesSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Manages
-        exclude = ('id',)
-
+        fields = '__all__'
 
 class AdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Admin
         fields = '__all__'
 
-
 class DealsWithSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Deals_With
-        exclude = ('id',)
+        fields = '__all__'

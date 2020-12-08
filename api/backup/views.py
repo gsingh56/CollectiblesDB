@@ -1,12 +1,10 @@
-from typing import OrderedDict
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.serializers import Serializer
-from rest_framework.utils.serializer_helpers import ReturnList
 from rest_framework.views import APIView
 from .serializers import *
 from .models import *
 
+# Create your views here.
 class ClientList (APIView):
     def get(self, request, format=None):
         clients = Client.objects.all()
@@ -23,8 +21,12 @@ class ClientList (APIView):
 
 class ClientDetail(APIView):
 
-    def get(self, request, user=None, clientname=None, num=None, format=None):
-        if user != None:
+    def get(self, request, id=None, user=None, clientname=None, num=None, format=None):
+        if id != None and user != None:
+            client = Client.objects.filter(userid=id, username=user)
+        elif id != None:
+            client = Client.objects.filter(userid=id)
+        elif user != None:
             client = Client.objects.filter(username=user)
         elif clientname != None:
             client = Client.objects.filter(name=clientname)
@@ -33,16 +35,22 @@ class ClientDetail(APIView):
         serializer = ClientSerializer(client, many=True)
         return Response(serializer.data)
 
-    def put(self, request, user=None, clientname=None, num=None, format=None):
-        if user != None:
+    def put(self, request, id=None, user=None, clientname=None, num=None, format=None):
+        if id != None and user != None:
             client = Client.objects.filter(
-                username=user).first()
+            userid=id, username=user, cFlag=1).first()
+        elif id != None:
+            client = Client.objects.filter(
+            userid=id, cFlag=1).first()
+        elif user != None:
+            client = Client.objects.filter(
+            username=user, cFlag=1).first()
         elif clientname != None:
             client = Client.objects.filter(
-                name=clientname).first()
+            name=clientname, cFlag=1).first()
         else:
             client = Client.objects.filter(
-                phonenumber=num).first()
+            phonenumber=num, cFlag=1).first()
         serializer = ClientSerializer(client, data=request.data)
         if serializer.is_valid():
             print(request.data)
@@ -50,19 +58,24 @@ class ClientDetail(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, user=None, clientname=None, num=None, format=None):
-        if user != None:
+    def delete(self, request, id=None, user=None, clientname=None, num=None, format=None):
+        if id != None and user != None:
             client = Client.objects.filter(
-                username=user).first()
+            userid=id, username=user, cFlag=1).first()
+        elif id != None:
+            client = Client.objects.filter(
+            userid=id, cFlag=1).first()
+        elif user != None:
+            client = Client.objects.filter(
+            username=user, cFlag=1).first()
         elif clientname != None:
             client = Client.objects.filter(
-                name=clientname).first()
+            name=clientname, cFlag=1).first()
         else:
             client = Client.objects.filter(
-                phonenumber=num).first()
+            phonenumber=num, cFlag=1).first()
         client.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class CollectorList(APIView):
 
@@ -70,7 +83,7 @@ class CollectorList(APIView):
         collectors = Client.objects.filter(cFlag=1)
         serializer = ClientSerializer(collectors, many=True)
         return Response(serializer.data)
-
+    
     def post(self, request, format=None):
         serializer = ClientSerializer(data=request.data)
         if serializer.is_valid():
@@ -78,11 +91,14 @@ class CollectorList(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class CollectorDetail(APIView):
 
-    def get(self, request, user=None, clientname=None, num=None, format=None):
-        if user != None:
+    def get(self, request, id=None, user=None, clientname=None, num=None, format=None):
+        if id != None and user != None:
+            client = Client.objects.filter(userid=id, username=user, cFlag=1)
+        elif id != None:
+            client = Client.objects.filter(userid=id, cFlag=1)
+        elif user != None:
             client = Client.objects.filter(username=user, cFlag=1)
         elif clientname != None:
             client = Client.objects.filter(name=clientname, cFlag=1)
@@ -91,16 +107,22 @@ class CollectorDetail(APIView):
         serializer = ClientSerializer(client, many=True)
         return Response(serializer.data)
 
-    def put(self, request, user=None, clientname=None, num=None, format=None):
-        if user != None:
+    def put(self, request, id=None, user=None, clientname=None, num=None, format=None):
+        if id != None and user != None:
             client = Client.objects.filter(
-                username=user, cFlag=1).first()
+            userid=id, username=user, cFlag=1).first()
+        elif id != None:
+            client = Client.objects.filter(
+            userid=id, cFlag=1).first()
+        elif user != None:
+            client = Client.objects.filter(
+            username=user, cFlag=1).first()
         elif clientname != None:
             client = Client.objects.filter(
-                name=clientname, cFlag=1).first()
+            name=clientname, cFlag=1).first()
         else:
             client = Client.objects.filter(
-                phonenumber=num, cFlag=1).first()
+            phonenumber=num, cFlag=1).first()
         serializer = ClientSerializer(client, data=request.data)
         print(client)
         if serializer.is_valid():
@@ -109,40 +131,53 @@ class CollectorDetail(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, user=None, clientname=None, num=None, format=None):
-        if user != None:
+    def delete(self, request, id=None, user=None, clientname=None, num=None, format=None):
+        if id != None and user != None:
             client = Client.objects.filter(
-                username=user, cFlag=1)
+            userid=id, username=user, cFlag=1)
+        elif id != None:
+            client = Client.objects.filter(
+            userid=id, cFlag=1)
+        elif user != None:
+            client = Client.objects.filter(
+            username=user, cFlag=1)
         elif clientname != None:
             client = Client.objects.filter(
-                name=clientname, cFlag=1)
+            name=clientname, cFlag=1)
         else:
             client = Client.objects.filter(
-                phonenumber=num, cFlag=1)
+            phonenumber=num, cFlag=1)
         client.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
 class SellerDetail(APIView):
 
-    def get(self, request, user=None, clientname=None, num=None, format=None):
-        if user != None:
+    def get(self, request, id=None, user=None, clientname=None, num=None, format=None):
+        if id != None and user != None:
+            client = Client.objects.filter(userid=id, username=user, sFlag=1)
+        elif id != None:
+            client = Client.objects.filter(userid=id, sFlag=1)
+        elif user != None:
             client = Client.objects.filter(username=user, sFlag=1)
         elif clientname != None:
             client = Client.objects.filter(name=clientname, sFlag=1)
         else:
             client = Client.objects.filter(phonenumber=num, sFlag=1)
-        serializer = SellerSerializer(client, many=True)
+        serializer = ClientSerializer(client, many=True)
         return Response(serializer.data)
 
-    def put(self, request, user=None, clientname=None, num=None, format=None):
-        if user != None:
+    def put(self, request, id=None, user=None, clientname=None, num=None, format=None):
+        if id != None and user != None:
+            client = Client.objects.filter(userid=id, username=user, sFlag=1)
+        elif id != None:
+            client = Client.objects.filter(userid=id, sFlag=1)
+        elif user != None:
             client = Client.objects.filter(username=user, sFlag=1)
         elif clientname != None:
             client = Client.objects.filter(name=clientname, sFlag=1)
         else:
             client = Client.objects.filter(phonenumber=num, sFlag=1)
-        serializer = SellerSerializer(client, data=request.data)
+        serializer = ClientSerializer(client, data=request.data)
         print(client)
         if serializer.is_valid():
             print(request.data)
@@ -150,8 +185,12 @@ class SellerDetail(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, user=None, clientname=None, num=None, format=None):
-        if user != None:
+    def delete(self, request, id=None, user=None, clientname=None, num=None, format=None):
+        if id != None and user != None:
+            client = Client.objects.filter(userid=id, username=user, sFlag=1)
+        elif id != None:
+            client = Client.objects.filter(userid=id, sFlag=1)
+        elif user != None:
             client = Client.objects.filter(username=user, sFlag=1)
         elif clientname != None:
             client = Client.objects.filter(name=clientname, sFlag=1)
@@ -165,157 +204,28 @@ class SellerList(APIView):
 
     def get(self, request, format=None):
         sellers = Client.objects.filter(sFlag=1)
-        serializer = SellerSerializer(sellers, many=True)
+        serializer = ClientSerializer(sellers, many=True)
         return Response(serializer.data)
-
+    
     def post(self, request, format=None):
-        serializer = SellerSerializer(data=request.data)
+        serializer = ClientSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class CollectibleList (APIView):
     def get(self, request, format=None):
-        albums = Album.objects.all()
-        comics = ComicBook.objects.all()
-        cards = SportCard.objects.all()
-        custom = Custom.objects.all()
-        albumSerializer = AlbumSerializer(albums, many=True)
-        comicSerializer = ComicBookSerializer(comics, many=True)
-        cardSerializer = SportCardSerializer(cards, many=True)
-        customSerializer = CustomSerializer(custom, many=True)
-        return Response(albumSerializer.data + comicSerializer.data + 
-            customSerializer.data + cardSerializer.data)
+        collectibles = Collectible.objects.all()
+        serializer = CollectibleSerializer(collectibles, many=True)
+        return Response(serializer.data)
 
     def post(self, request, format=None):
-        try:
-            serializer = AlbumSerializer(data=request.data)
-        except:
-            try:
-                serializer = ComicBookSerializer(data=request.data)
-            except:
-                try:
-                    serializer = CustomSerializer(data=request.data)
-                except:
-                    serializer = SportCardSerializer(data=request.data)
+        serializer = CollectibleSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class CollectibleDetail(APIView):
-    def get(self, request, id=None, collectiblename=None, collectibletype=None, release=None, format=None):
-        if id != None:
-            albums = Album.objects.filter(id=id)
-            comics = ComicBook.objects.filter(id=id)
-            cards = SportCard.objects.filter(id=id)
-            custom = Custom.objects.filter(id=id)
-            albumSerializer = AlbumSerializer(albums, many=True)
-            comicSerializer = ComicBookSerializer(comics, many=True)
-            cardSerializer = SportCardSerializer(cards, many=True)
-            customSerializer = CustomSerializer(custom, many=True)
-        elif collectiblename != None:
-            albums = Album.objects.filter(name=collectiblename)
-            comics = ComicBook.objects.filter(name=collectiblename)
-            cards = SportCard.objects.filter(name=collectiblename)
-            custom = Custom.objects.filter(name=collectiblename)
-            albumSerializer = AlbumSerializer(albums, many=True)
-            comicSerializer = ComicBookSerializer(comics, many=True)
-            cardSerializer = SportCardSerializer(cards, many=True)
-            customSerializer = CustomSerializer(custom, many=True)
-        elif collectibletype != None:
-            albums = Album.objects.filter(type=collectibletype)
-            comics = ComicBook.objects.filter(type=collectibletype)
-            cards = SportCard.objects.filter(type=collectibletype)
-            custom = Custom.objects.filter(type=collectibletype)
-            albumSerializer = AlbumSerializer(albums, many=True)
-            comicSerializer = ComicBookSerializer(comics, many=True)
-            cardSerializer = SportCardSerializer(cards, many=True)
-            customSerializer = CustomSerializer(custom, many=True)
-        else:
-            albums = Album.objects.filter(year=release)
-            comics = ComicBook.objects.filter(year=release)
-            cards = SportCard.objects.filter(year=release)
-            custom = Custom.objects.filter(year=release)
-            albumSerializer = AlbumSerializer(albums, many=True)
-            comicSerializer = ComicBookSerializer(comics, many=True)
-            cardSerializer = SportCardSerializer(cards, many=True)
-            customSerializer = CustomSerializer(custom, many=True)
-        return Response(albumSerializer.data + comicSerializer.data + 
-            customSerializer.data + cardSerializer.data)
-
-    def put(self, request, id=None, collectiblename=None, collectibletype=None, release=None, format=None):
-        if id != None:
-            albums = Album.objects.filter(id=id).first()
-            comics = ComicBook.objects.filter(id=id).first()
-            cards = SportCard.objects.filter(id=id).first()
-            custom = Custom.objects.filter(id=id).first()
-            albumSerializer = AlbumSerializer(albums, many=True)
-            comicSerializer = ComicBookSerializer(comics, many=True)
-            cardSerializer = SportCardSerializer(cards, many=True)
-            customSerializer = CustomSerializer(custom, many=True)
-        elif collectiblename != None:
-            albums = Album.objects.filter(name=collectiblename).first()
-            comics = ComicBook.objects.filter(name=collectiblename).first()
-            cards = SportCard.objects.filter(name=collectiblename).first()
-            custom = Custom.objects.filter(name=collectiblename).first()
-            albumSerializer = AlbumSerializer(albums, many=True)
-            comicSerializer = ComicBookSerializer(comics, many=True)
-            cardSerializer = SportCardSerializer(cards, many=True)
-            customSerializer = CustomSerializer(custom, many=True)
-        elif collectibletype != None:
-            albums = Album.objects.filter(type=collectibletype).first()
-            comics = ComicBook.objects.filter(type=collectibletype).first()
-            cards = SportCard.objects.filter(type=collectibletype).first()
-            custom = Custom.objects.filter(type=collectibletype).first()
-            albumSerializer = AlbumSerializer(albums, many=True)
-            comicSerializer = ComicBookSerializer(comics, many=True)
-            cardSerializer = SportCardSerializer(cards, many=True)
-            customSerializer = CustomSerializer(custom, many=True)
-        else:
-            albums = Album.objects.filter(year=release).first()
-            comics = ComicBook.objects.filter(year=release).first()
-            cards = SportCard.objects.filter(year=release).first()
-            custom = Custom.objects.filter(year=release).first()
-            albumSerializer = AlbumSerializer(albums, many=True)
-            comicSerializer = ComicBookSerializer(comics, many=True)
-            cardSerializer = SportCardSerializer(cards, many=True)
-            customSerializer = CustomSerializer(custom, many=True)
-        serializer = albumSerializer or comicSerializer or cardSerializer or customSerializer
-        if serializer.is_valid():
-            print(request.data)
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, id=None, collectiblename=None, collectibletype=None, release=None, format=None):
-        if id != None:
-            albums = Album.objects.filter(id=id)
-            comics = ComicBook.objects.filter(id=id)
-            cards = SportCard.objects.filter(id=id)
-            custom = Custom.objects.filter(id=id)
-        elif collectiblename != None:
-            albums = Album.objects.filter(name=collectiblename)
-            comics = ComicBook.objects.filter(name=collectiblename)
-            cards = SportCard.objects.filter(name=collectiblename)
-            custom = Custom.objects.filter(name=collectiblename)
-        elif collectibletype != None:
-            albums = Album.objects.filter(type=collectibletype)
-            comics = ComicBook.objects.filter(type=collectibletype)
-            cards = SportCard.objects.filter(type=collectibletype)
-            custom = Custom.objects.filter(type=collectibletype)
-        else:
-            albums = Album.objects.filter(year=release)
-            comics = ComicBook.objects.filter(year=release)
-            cards = SportCard.objects.filter(year=release)
-            custom = Custom.objects.filter(year=release)
-        collectible = albums or comics or cards or custom
-        collectible.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class ComicBookList(APIView):
     def get(self, request, format=None):
@@ -332,7 +242,7 @@ class ComicBookList(APIView):
 
 
 class ComicBookDetails(APIView):
-    def get(self, request, id=None, comicName=None, authorName=None, illustratorName=None, release=None, comicGenre=None, format=None):
+    def get(self, request, id=None, comicName=None, authorName=None, illustratorName=None, release=None, format=None):
         if id != None:
             comicBook = ComicBook.objects.filter(id=id)
         elif comicName != None:
@@ -341,19 +251,12 @@ class ComicBookDetails(APIView):
             comicBook = ComicBook.objects.filter(author=authorName)
         elif release != None:
             comicBook = ComicBook.objects.filter(year=release)
-        elif comicGenre != None:
-            comicGenre = ComicGenre.objects.filter(genre=comicGenre)
-            data = []
-            for gen in comicGenre:
-                comic = ComicBook.objects.filter(id=gen.comicID.id)
-                data += ComicBookSerializer(comic, many=True).data
-            return Response(data)
         else:
             comicBook = ComicBook.objects.filter(illustrator=illustratorName)
         serializer = ComicBookSerializer(comicBook, many=True)
         return Response(serializer.data)
 
-    def put(self, request, id=None, comicName=None, authorName=None, illustratorName=None, release=None, comicGenre=None, format=None):
+    def put(self, request, id=None, comicName=None, authorName=None, illustratorName=None, release=None, format=None):
         if id != None:
             comicBook = ComicBook.objects.filter(id=id).first()
         elif comicName != None:
@@ -362,12 +265,8 @@ class ComicBookDetails(APIView):
             comicBook = ComicBook.objects.filter(author=authorName).first()
         elif release != None:
             comicBook = ComicBook.objects.filter(year=release)
-        elif comicGenre != None:
-            comicGenre = ComicBook.objects.filter(genre=comicGenre).first()
-            comicBook = comicGenre.comicID
         else:
-            comicBook = ComicBook.objects.filter(
-                illustrator=illustratorName).first()
+            comicBook = ComicBook.objects.filter(illustrator=illustratorName).first()
         serializer = ComicBookSerializer(comicBook, data=request.data)
         print(comicBook)
         if serializer.is_valid():
@@ -376,7 +275,7 @@ class ComicBookDetails(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, id=None, comicName=None, authorName=None, illustratorName=None, release=None, comicGenre=None, format=None):
+    def delete(self, request, id=None, comicName=None, authorName=None, illustratorName=None, release=None, format=None):
         if id != None:
             comicBook = ComicBook.objects.filter(id=id)
         elif comicName != None:
@@ -385,14 +284,47 @@ class ComicBookDetails(APIView):
             comicBook = ComicBook.objects.filter(author=authorName)
         elif release != None:
             comicBook = ComicBook.objects.filter(year=release)
-        elif comicGenre != None:
-            comicGenre = ComicBook.objects.filter(genre=comicGenre).first()
-            comicBook = comicGenre.comicID
         else:
             comicBook = ComicBook.objects.filter(illustrator=illustratorName)
         comicBook.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+class ComicGenreList(APIView):
+    def get(self, request, format=None):
+        comicGenre = ComicGenre.objects.all()
+        serializer = ComicGenreSerializer(comicGenre, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = ComicGenreSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ComicGenreDetails(APIView):
+
+    def get(self, request, pk, format=None):
+        comicGenre = ComicGenre.objects.get(pk=pk)
+        serializer = ComicGenreSerializer(comicGenre)
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        comicGenre = ComicGenre.objects.filter(pk=pk).first()
+        serializer = ComicGenreSerializer(comicGenre, data=request.data)
+        print(comicGenre)
+        if serializer.is_valid():
+            print(request.data)
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        comicGenre = ComicGenre.objects.filter(pk=pk)
+        comicGenre.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class AlbumList(APIView):
 
@@ -411,7 +343,7 @@ class AlbumList(APIView):
 
 class AlbumDetail(APIView):
 
-    def get(self, request, id=None, albumName=None, artistName=None, release=None, albumType=None, albumGenre=None, format=None):
+    def get(self, request, id=None, albumName=None, artistName=None, release=None, albumType=None, format=None):
         if id != None:
             album = Album.objects.filter(id=id)
         elif albumName != None:
@@ -420,19 +352,12 @@ class AlbumDetail(APIView):
             album = Album.objects.filter(artist=artistName)
         elif albumType != None:
             album = Album.objects.filter(type=albumType)
-        elif albumGenre != None:
-            albumGenre = AlbumGenre.objects.filter(genre=albumGenre)
-            data = []
-            for gen in albumGenre:
-                album = Album.objects.filter(id=gen.albumID.id)
-                data += AlbumSerializer(album, many=True).data
-            return Response(data)
         else:
             album = Album.objects.filter(year=release)
         serializer = AlbumSerializer(album, many=True)
         return Response(serializer.data)
 
-    def put(self, request, id=None, albumName=None, artistName=None, release=None, albumType=None, albumGenre=None, format=None):
+    def put(self, request, id=None, albumName=None, artistName=None, release=None, albumType=None, format=None):
         if id != None:
             album = Album.objects.filter(id=id).first()
         elif albumName != None:
@@ -441,9 +366,6 @@ class AlbumDetail(APIView):
             album = Album.objects.filter(artist=artistName).first()
         elif albumType != None:
             album = Album.objects.filter(type=albumType).first()
-        elif albumGenre != None:
-            albumGenre = AlbumGenre.objects.filter(genre=albumGenre).first()
-            album = albumGenre.albumID
         else:
             album = Album.objects.filter(year=release).first()
         serializer = AlbumSerializer(album, data=request.data)
@@ -453,7 +375,7 @@ class AlbumDetail(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, id=None, albumName=None, artistName=None, release=None, albumType=None, albumGenre=None, format=None):
+    def delete(self, request, id=None, albumName=None, artistName=None, release=None, albumType=None, format=None):
         if id != None:
             album = Album.objects.filter(id=id)
         elif albumName != None:
@@ -462,13 +384,47 @@ class AlbumDetail(APIView):
             album = Album.objects.filter(artist=artistName)
         elif albumType != None:
             album = Album.objects.filter(type=albumType)
-        elif albumGenre != None:
-            albumGenre = AlbumGenre.objects.filter(genre=albumGenre)
-            album = albumGenre.albumID
         else:
             album = Album.objects.filter(year=release)
         album.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class AlbumGenreList(APIView):
+    def get(self, request, format=None):
+        albumGenre = AlbumGenre.objects.all()
+        serializer = AlbumGenreSerializer(albumGenre, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = AlbumGenreSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AlbumGenreDetails(APIView):
+    def get(self, request, pk, format=None):
+        albumGenre = AlbumGenre.objects.get(pk=pk)
+        serializer = AlbumGenreSerializer(albumGenre)
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        albumGenre = AlbumGenre.objects.filter(pk=pk).first()
+        serializer = AlbumGenreSerializer(albumGenre, data=request.data)
+        print(albumGenre)
+        if serializer.is_valid():
+            print(request.data)
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        albumGenre = AlbumGenre.objects.filter(pk=pk)
+        albumGenre.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class SportCardList(APIView):
     def get(self, request, format=None):
@@ -649,7 +605,7 @@ class MadeOfDetails(APIView):
         if oID != None:
             madeOf = Made_Of.objects.filter(order_id=oID)
         else:
-            madeOf = Made_Of.objects.filter(collectible_id=id)
+            madeOf = Made_Of.objects.filter(id=id)
         serializer = MadeOfSerializer(madeOf, many=True)
         return Response(serializer.data)
 
@@ -657,7 +613,7 @@ class MadeOfDetails(APIView):
         if oID != None:
             madeOf = Made_Of.objects.filter(order_id=oID).first()
         else:
-            madeOf = Made_Of.objects.filter(collectible_id=id).first()
+            madeOf = Made_Of.objects.filter(id=id).first()
         serializer = MadeOfSerializer(madeOf, data=request.data)
         print(madeOf)
         if serializer.is_valid():
@@ -689,20 +645,14 @@ class OrderList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class OrderDetails(APIView):
-    def get(self, request, pk=None, user=None, format=None):
-        if(pk != None):
-            order = Order.objects.get(pk=pk)
-        else:
-            order = Order.objects.filter(userName=user)
-        serializer = OrderSerializer(order, many=True)
+class OrderListDetails(APIView):
+    def get(self, request, pk, format=None):
+        order = Order.objects.get(pk=pk)
+        serializer = OrderSerializer(order)
         return Response(serializer.data)
 
-    def put(self, request, pk=None, user=None, format=None):
-        if(pk != None):
-            order = Order.objects.get(pk=pk).first()
-        else:
-            order = Order.objects.filter(userName=user).first()
+    def put(self, request, pk, format=None):
+        order = Order.objects.filter(pk=pk).first()
         serializer = OrderSerializer(order, data=request.data)
         print(order)
         if serializer.is_valid():
@@ -711,11 +661,8 @@ class OrderDetails(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk=None, user=None, format=None):
-        if(pk != None):
-            order = Order.objects.get(pk=pk)
-        else:
-            order = Order.objects.filter(userName=user)
+    def delete(self, request, pk, format=None):
+        order = Order.objects.filter(pk=pk)
         order.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -735,37 +682,26 @@ class FulfillsList(APIView):
 
 
 class FulfillsDetails(APIView):
-    def get(self, request, user=None, oID=None, format=None):
-        if user != None and oID != None:
-            fulfills = Fulfills.objects.filter(orderID=oID, userName=user)
-        elif user != None:
-            fulfills = Fulfills.objects.filter(userName=user)
-        else:
-            fulfills = Fulfills.objects.filter(orderID=oID)
-        serializer = FulfillsSerializer(fulfills, many=True)
+    def get(self, request, id=None, user=None, oID=None, format=None):
+        fulfills = Fulfills.objects.get(
+            userID=id, orderID=oID, userName=user)
+        serializer = FulfillsSerializer(fulfills)
         return Response(serializer.data)
 
-    def put(self, request, user=None, oID=None, format=None):
-        if user != None and oID != None:
-            fulfills = Fulfills.objects.filter(orderID=oID, userName=user).first()
-        elif user != None:
-            fulfills = Fulfills.objects.filter(userName=user).first()
-        else:
-            fulfills = Fulfills.objects.filter(orderID=oID).first()
+    def put(self, request, id, userName, orderID, format=None):
+        fulfills = Fulfills.objects.filter(
+            id=id, userName=userName, orderID=orderID).first()
         serializer = FulfillsSerializer(fulfills, data=request.data)
+        print(fulfills)
         if serializer.is_valid():
             print(request.data)
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, user=None, oID=None, format=None):
-        if user != None and oID != None:
-            fulfills = Fulfills.objects.filter(orderID=oID, userName=user)
-        elif user != None:
-            fulfills = Fulfills.objects.filter(userName=user)
-        else:
-            fulfills = Fulfills.objects.filter(orderID=oID)
+    def delete(self, request, id, userName, orderID, format=None):
+        fulfills = Fulfills.objects.filter(
+            id=id, userName=userName, orderID=orderID)
         fulfills.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -785,19 +721,13 @@ class PaymentList(APIView):
 
 
 class PaymentDetails(APIView):
-    def get(self, request, pk=None, oID=None, format=None):
-        if pk != None:
-            payment = Payment.objects.filter(pk=pk)
-        else:
-            payment = Payment.objects.filter(orderID=oID)
-        serializer = PaymentSerializer(payment, many=True)
+    def get(self, request, pk, format=None):
+        payment = Payment.objects.get(pk=pk)
+        serializer = PaymentSerializer(payment)
         return Response(serializer.data)
 
-    def put(self, request, pk=None, oID=None, format=None):
-        if pk != None:
-            payment = Payment.objects.filter(pk=pk).first()
-        else:
-            payment = Payment.objects.filter(orderID=oID).first()
+    def put(self, request, pk, format=None):
+        payment = Payment.objects.filter(pk=pk).first()
         serializer = PaymentSerializer(payment, data=request.data)
         print(payment)
         if serializer.is_valid():
@@ -806,437 +736,380 @@ class PaymentDetails(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk=None, oID=None, format=None):
-        if pk != None:
-            payment = Payment.objects.filter(pk=pk)
-        else:
-            payment = Payment.objects.filter(orderID=oID)
+    def delete(self, request, pk, format=None):
+        payment = Payment.objects.filter(pk=pk)
         payment.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class ShippingMethodList(APIView):
     def get(self, request, format=None):
         shipping = Shipping_Method.objects.all()
         serializer = ShippingMethodSerializer(shipping, many=True)
         return Response(serializer.data)
-
+    
     def post(self, request, format=None):
         serializer = ShippingMethodSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        if serializer.is_valid ( ):
+            serializer.save ( )
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ShippingMethodDetail(APIView):
 
-    def get(self, request, user=None, method=None, format=None):
-        if user!= None:
-            shipping = Shipping_Method.objects.filter(username=user)
-        else:
-            shipping = Shipping_Method.objects.filter(shippingMethod=method)
-        serializer = ShippingMethodSerializer(shipping, many=True)
-        return Response(serializer.data)
+    def get(self, request, id, user, format=None):
+        shipping = Shipping_Method.objects.get (userID=id, username=user)
+        serializer = ShippingMethodSerializer(shipping)
+        return Response (serializer.data)
 
-    def put(self, request, user=None, method=None, format=None):
-        if user!= None:
-            shipping = Shipping_Method.objects.filter(username=user).first()
-        else:
-            shipping = Shipping_Method.objects.filter(shippingMethod=method).first()
+    def put(self, request, id, user, format=None):
+        shipping = Shipping_Method.objects.filter(userID=id, username=user).first()
         serializer = ShippingMethodSerializer(shipping, data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid ( ):
             print(request.data)
             serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response (serializer.data)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, user=None, method=None, format=None):
-        if user!= None:
-            shipping = Shipping_Method.objects.filter(username=user)
-        else:
-            shipping = Shipping_Method.objects.filter(shippingMethod=method)
+    def delete(self, request, id, user, format=None):
+        shipping = Shipping_Method.objects.filter(userID=id, userName=user)
         shipping.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class WarehouseList(APIView):
     def get(self, request, format=None):
         warehouse = Warehouse.objects.all()
         serializer = WarehouseSerializer(warehouse, many=True)
         return Response(serializer.data)
-
+    
     def post(self, request, format=None):
         serializer = WarehouseSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if serializer.is_valid ( ):
+            serializer.save ( )
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class WarehouseListUser(APIView):
+    def get(self, request, id, format=None):
+        warehouse = Warehouse.objects.filter(userID=id)
+        serializer = WarehouseSerializer(warehouse, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request, format=None):
+        serializer = WarehouseSerializer(data=request.data)
+        if serializer.is_valid ( ):
+            serializer.save ( )
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class WarehouseDetail(APIView):
 
-    def get(self, request, id=None, user=None, format=None):
-        if id != None:
-            warehouse = Warehouse.objects.filter(warehouseNumber=id)
-        else:
-            warehouse = Warehouse.objects.filter(username=user)
-        serializer = WarehouseSerializer(warehouse, many=True)
-        return Response(serializer.data)
+    def get(self, request, id, format=None):
+        warehouse = Warehouse.objects.get (warehouseNumber=id)
+        serializer = WarehouseSerializer(warehouse)
+        return Response (serializer.data)
 
-    def put(self, request, id=None, user=None, format=None):
-        if id != None:
-            warehouse = Warehouse.objects.filter(warehouseNumber=id).first()
-        else:
-            warehouse = Warehouse.objects.filter(username=user).first()
+    def put(self, request, id, format=None):
+        warehouse = Warehouse.objects.filter(warehouseNumber=id).first()
         serializer = WarehouseSerializer(warehouse, data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid ( ):
             print(request.data)
             serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response (serializer.data)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, id=None, user=None, format=None):
-        if id != None:
-            warehouse = Warehouse.objects.filter(warehouseNumber=id)
-        else:
-            warehouse = Warehouse.objects.filter(username=user)
+    def delete(self, request, id, format=None):
+        warehouse = Warehouse.objects.filter(warehouseNumber=id)
         warehouse.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class ModeratesList(APIView):
     def get(self, request, format=None):
         moderates = Moderates.objects.all()
         serializer = ModeratesSerializer(moderates, many=True)
         return Response(serializer.data)
-
+    
     def post(self, request, format=None):
         serializer = ModeratesSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        if serializer.is_valid ( ):
+            serializer.save ( )
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ModeratesDetail(APIView):
 
-    def get(self, request, user, format=None):
-        moderates = Moderates.objects.filter(username=user)
-        serializer = ModeratesSerializer(moderates, many=True)
-        return Response(serializer.data)
+    def get(self, request, id, user, format=None):
+        moderates = Moderates.objects.filter(userID=id, userName=user)
+        serializer = ModeratesSerializer(moderates)
+        return Response (serializer.data)
 
-    def put(self, request, user, format=None):
-        moderates = Moderates.objects.filter(username=user).first()
+    def put(self, request, id, user, format=None):
+        moderates = Moderates.objects.filter(userID=id, userName=user).first()
         serializer = ModeratesSerializer(moderates, data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid ( ):
             print(request.data)
             serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response (serializer.data)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, user, format=None):
-        moderates = Moderates.objects.filter(username=user)
+    def delete(self, request, id, user, format=None):
+        moderates = Moderates.objects.filter(userID=id, userName=user)
         moderates.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class UserCollectionList(APIView):
     def get(self, request, format=None):
         collection = UserCollection.objects.all()
         serializer = UserCollectionSerializer(collection, many=True)
         return Response(serializer.data)
-
+    
     def post(self, request, format=None):
         serializer = UserCollectionSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        if serializer.is_valid ( ):
+            serializer.save ( )
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserCollectionDetail(APIView):
 
-    def get(self, request, name=None, user=None, format=None):
-        if name != None:
-            collection = UserCollection.objects.filter(collectionName=name)
-        else:
-            collection = UserCollection.objects.filter(userName=user)
-        serializer = UserCollectionSerializer(collection, many=True)
-        return Response(serializer.data)
+    def get(self, request, id, user, format=None):
+        collection = UserCollection.objects.get (userID=id, userName=user)
+        serializer = UserCollectionSerializer(collection)
+        return Response (serializer.data)
 
-    def put(self, request, name=None, user=None, format=None):
-        if name != None:
-            collection = UserCollection.objects.filter(collectionName=name).first()
-        else:
-            collection = UserCollection.objects.filter(userName=user).first()
+    def put(self, request, id, user, format=None):
+        collection = UserCollection.objects.filter(userID=id, userName=user).first()
         serializer = UserCollectionSerializer(collection, data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid ( ):
             print(request.data)
             serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response (serializer.data)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, name=None, user=None, format=None):
-        if name != None:
-            collection = UserCollection.objects.filter(collectionName=name)
-        else:
-            collection = UserCollection.objects.filter(userName=user)
+    def delete(self, request, id, user, format=None):
+        collection = UserCollection.objects.filter(userID=id, userName=user)
         collection.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class ConsistsOfList(APIView):
     def get(self, request, format=None):
         consist = Consists_Of.objects.all()
         serializer = ConsistsOfSerializer(consist, many=True)
         return Response(serializer.data)
-
+    
     def post(self, request, format=None):
         serializer = ConsistsOfSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        if serializer.is_valid ( ):
+            serializer.save ( )
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ConsistsOfDetail(APIView):
 
-    def get(self, request, id, user, format=None):
-        consist = Consists_Of.objects.filter(username=user, collectible_id=id)
-        serializer = ConsistsOfSerializer(consist, many=True)
-        return Response(serializer.data)
+    def get(self, request, id, userid, format=None):
+        consist = Consists_Of.objects.filter(userID=userid, ID=id)
+        serializer = ConsistsOfSerializer(consist)
+        return Response (serializer.data)
 
-    def put(self, request, id, user, format=None):
-        consist = Consists_Of.objects.filter(username=user, collectible_id=id).first()
+    def put(self, request, id, userid, format=None):
+        consist = Consists_Of.objects.filter(userID=userid, ID=id).first()
         serializer = ConsistsOfSerializer(consist, data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid ( ):
             print(request.data)
             serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response (serializer.data)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, id, user, format=None):
-        consist = Consists_Of.objects.filter(username=user, collectible_id=id)
+    def delete(self, request, id, userid, format=None):
+        consist = Consists_Of.objects.filter(userID=userid, ID=id)
         consist.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class SellsList(APIView):
     def get(self, request, format=None):
         sell = Sells.objects.all()
         serializer = SellsSerializer(sell, many=True)
         return Response(serializer.data)
-
+    
     def post(self, request, format=None):
         serializer = SellsSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        if serializer.is_valid ( ):
+            serializer.save ( )
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SellsDetail(APIView):
 
-    def get(self, request, id=None, user=None, format=None):
-        if id != None:
-            sells = Sells.objects.filter(collectible_id=id)
-        else:
-            sells = Sells.objects.filter(username=user)
-        serializer = SellsSerializer(sells, many=True)
-        return Response(serializer.data)
+    def get(self, request, id, userid, user, format=None):
+        sells = Sells.objects.get (userID=userid, ID=id, userName=user)
+        serializer = SellsSerializer(sells)
+        return Response (serializer.data)
 
-    def put(self, request, id=None, user=None, format=None):
-        if id != None:
-            sells = Sells.objects.filter(collectible_id=id).first()
-        else:
-            sells = Sells.objects.filter(username=user).first()
+    def put(self, request, id, userid, user, format=None):
+        sells = Sells.objects.filter(userID=userid, ID=id, userName=user).first()
         serializer = SellsSerializer(sells, data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid ( ):
             print(request.data)
             serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response (serializer.data)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, id=None, user=None, format=None):
-        if id != None:
-            sells = Sells.objects.filter(collectible_id=id)
-        else:
-            sells = Sells.objects.filter(username=user)
+    def delete(self, request, id, userid, user, format=None):
+        sells = Sells.objects.filter(userID=userid, ID=id, userName=user)
         sells.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class WantsList(APIView):
     def get(self, request, format=None):
         wants = Wants.objects.all()
         serializer = WantsSerializer(wants, many=True)
         return Response(serializer.data)
-
+    
     def post(self, request, format=None):
         serializer = WantsSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        if serializer.is_valid ( ):
+            serializer.save ( )
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class WantsDetail(APIView):
 
-    def get(self, request, user=None, name=None, format=None):
-        if user != None:
-            wants = Wants.objects.filter(userName=user)
-        else:
-            wants = Wants.objects.filter(collectionName=name)
-        serializer = WantsSerializer(wants, many=True)
-        return Response(serializer.data)
+    def get(self, request, id, user, format=None):
+        wants = Wants.objects.get (userID=id, userName=user)
+        serializer = WantsSerializer(wants)
+        return Response (serializer.data)
 
-    def put(self, request, user=None, name=None, format=None):
-        if user != None:
-            wants = Wants.objects.filter(userName=user).first()
-        else:
-            wants = Wants.objects.filter(collectionName=name).first()
+    def put(self, request, id, user, format=None):
+        wants = Wants.objects.filter(userID=id, userName=user).first()
         serializer = WantsSerializer(wants, data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid ( ):
             print(request.data)
             serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response (serializer.data)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, user=None, name=None, format=None):
-        if user != None:
-            wants = Wants.objects.filter(userName=user)
-        else:
-            wants = Wants.objects.filter(collectionName=name)
+    def delete(self, request, id, user, format=None):
+        wants = Wants.objects.filter(userID=id, userName=user)
         wants.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class CollectionList(APIView):
     def get(self, request, format=None):
         collection = Collection.objects.all()
         serializer = CollectionSerializer(collection, many=True)
         return Response(serializer.data)
-
+    
     def post(self, request, format=None):
         serializer = CollectionSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        if serializer.is_valid ( ):
+            serializer.save ( )
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CollectionDetail(APIView):
 
     def get(self, request, name, format=None):
-        collection = Collection.objects.get(collection_name=name)
+        collection = Collection.objects.get (collection_name=name)
         serializer = CollectionSerializer(collection)
-        return Response(serializer.data)
+        return Response (serializer.data)
 
     def put(self, request, name, format=None):
         collection = Collection.objects.filter(collection_name=name).first()
         serializer = CollectionSerializer(collection, data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid ( ):
             print(request.data)
             serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response (serializer.data)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, name, format=None):
         collection = Collection.objects.filter(collection_name=name)
         collection.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
 class ManagesList(APIView):
     def get(self, request, format=None):
         manages = Manages.objects.all()
         serializer = ManagesSerializer(manages, many=True)
         return Response(serializer.data)
-
+    
     def post(self, request, format=None):
         serializer = ManagesSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        if serializer.is_valid ( ):
+            serializer.save ( )
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ManagesDetail(APIView):
 
     def get(self, request, id, user, format=None):
-        manages = Manages.objects.get(collectible_id=id, adminUsername=user)
+        manages = Manages.objects.get (ID=id, adminUserName=user)
         serializer = ManagesSerializer(manages)
-        return Response(serializer.data)
+        return Response (serializer.data)
 
     def put(self, request, id, user, format=None):
-        manages = Manages.objects.filter(
-            collectible_id=id, adminUsername=user).first()
+        manages = Manages.objects.filter(ID=id, adminUserName=user).first()
         serializer = ManagesSerializer(manages, data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid ( ):
             print(request.data)
             serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response (serializer.data)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id, user, format=None):
-        manages = Manages.objects.filter(collectible_id=id, adminUsername=user)
+        manages = Manages.objects.filter(ID=id, adminUserName=user)
         manages.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class AdminList(APIView):
     def get(self, request, format=None):
         admin = Admin.objects.all()
         serializer = AdminSerializer(admin, many=True)
         return Response(serializer.data)
-
+    
     def post(self, request, format=None):
         serializer = AdminSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        if serializer.is_valid ( ):
+            serializer.save ( )
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     def put(self, request, user, format=None):
         admin = Admin.objects.filter(userName=user).first()
         serializer = AdminSerializer(admin, data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid ( ):
             print(request.data)
             serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+            return Response (serializer.data)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class DealsWithList(APIView):
     def get(self, request, format=None):
         deal = Deals_With.objects.all()
         serializer = DealsWithSerializer(deal, many=True)
         return Response(serializer.data)
-
+    
     def post(self, request, format=None):
         serializer = DealsWithSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        if serializer.is_valid ( ):
+            serializer.save ( )
+            return Response (serializer.data, status=status.HTTP_201_CREATED)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class DealsWithDetail(APIView):
 
     def get(self, request, id, format=None):
-        deal = Deals_With.objects.get(orderID=id)
+        deal = Deals_With.objects.get (orderID=id)
         serializer = DealsWithSerializer(deal)
-        return Response(serializer.data)
+        return Response (serializer.data)
 
     def put(self, request, id, format=None):
         deal = Deals_With.objects.filter(orderID=id).first()
         serializer = DealsWithSerializer(deal, data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid ( ):
             print(request.data)
             serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response (serializer.data)
+        return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id, format=None):
         deal = Deals_With.objects.filter(orderID=id)

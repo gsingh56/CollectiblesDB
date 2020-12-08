@@ -29,12 +29,6 @@ urlpatterns = [
     # List all collectibles
     path('collectibles/', views.CollectibleList.as_view()),
 
-    #Searching all collectibles
-    path('search/collectibles/<int:id>', views.CollectibleDetail.as_view()),
-    path('search/collectibles/<str:collectiblename>', views.CollectibleDetail.as_view()),
-    path('search/collectibles/releaseyear/<int:release>', views.CollectibleDetail.as_view()),
-    path('search/collectibles/type/<str:collectibletype>', views.CollectibleDetail.as_view()),
-
     # List albums
     path('collectibles/albums/', views.AlbumList.as_view()),
 
@@ -46,8 +40,6 @@ urlpatterns = [
     path('search/collectibles/albums/type/<str:albumType>',
          views.AlbumDetail.as_view()),
     path('search/collectibles/albums/artist/<str:artistName>',
-         views.AlbumDetail.as_view()),
-    path('search/collectibles/albums/genre/<str:albumGenre>',
          views.AlbumDetail.as_view()),
     path('search/collectibles/albums/releaseyear/<int:release>',
          views.AlbumDetail.as_view()),
@@ -67,8 +59,6 @@ urlpatterns = [
     path('search/collectibles/comicBooks/illustrator/<str:illustratorName>',
          views.ComicBookDetails.as_view()),
     path('search/collectibles/comicBooks/releaseyear/<int:release>',
-         views.ComicBookDetails.as_view()),
-    path('search/collectibles/comicBooks/genre/<str:comicGenre>',
          views.ComicBookDetails.as_view()),
 
     # List all sport cards

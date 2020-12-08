@@ -114,10 +114,38 @@ class SportCardSerializer(serializers.ModelSerializer):
 
 
 class CustomSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.Custom
         fields = '__all__'
+
+
+class CollectibleField(Field):
+
+    def to_representation(self, value):
+        if isinstance(value, models.Album):
+            return AlbumSerializer(value).data
+        elif isinstance(value, models.SportCard):
+            return SportCardSerializer(value).data
+        elif isinstance(value, models.ComicBook):
+            return ComicBookSerializer(value).data
+        return CustomSerializer(value).data
+
+    def to_internal_value(self, data):
+        collectible_type = data.pop('collectibleID')
+        if collectible_type == 'Album':
+            serializer = AlbumSerializer(data)
+        elif collectible_type == 'ComicBook':
+            serializer = ComicBookSerializer(data)
+        elif collectible_type == 'SportCard':
+            serializer = SportCardSerializer(data)
+        else:
+            serializer = CustomSerializer(data)
+        if serializer.is_valid():
+            obj = serializer.save()
+        else:
+            raise serializers.ValidationError(serializer.errors)
+
+        return obj
 
 
 class CollectibleSerializer(serializers.ModelSerializer):
