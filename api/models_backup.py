@@ -1,5 +1,7 @@
 from django.db import models
-from django.db.models.fields.related import ForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
+# Create your models here.
 
 class Client(models.Model):
     userid = models.IntegerField(primary_key=True)
@@ -7,34 +9,33 @@ class Client(models.Model):
     password = models.CharField(max_length=250)
     phonenumber = models.CharField(max_length=10)
     name = models.CharField(max_length=50)
-    cFlag = models.IntegerField(blank=True, null=True)
-    sFlag = models.IntegerField(blank=True, null=True)
+    cFlag = models.IntegerField()
+    sFlag = models.IntegerField()
     website = models.CharField(max_length=50, blank=True)
 
     class Meta:
         unique_together = (('userid', 'username'))
 
-    def __str__(self):
-        return str(self.userid) + " " + self.username + " " + self.password + " " + str(self.phonenumber) + " " + self.name + " " + str(self.cFlag) + " " + str(self.sFlag) + " " + self.website
+    #def __str__(self):
+    #    return self.userid + " " + self.username + " " + self.password + " " + self.phonenumber + " " + self.name + " " + self.cFlag + " " + self.sFlag + " " + self.website
 
 class Collectible(models.Model):
-    id = models.IntegerField(primary_key=True, default=-1)
+    collectible_object_id = models.IntegerField()
+    collectible_content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
+    collectibleID = GenericForeignKey('collectible_content_type', 'collectible_object_id')
     name = models.CharField(max_length=50, default="")
     type = models.CharField(max_length=20, default="")
     year = models.IntegerField(default=1900)
 
-    class Meta:
-        abstract=True
-
     def __str__(self):
-        return self.name + " " + self.type + " " + str(self.year)
+        return self.name + " " + self.type + " " + self.year
 
 
 class Album(Collectible):
     artist = models.CharField(max_length=50)
 
     def __str__(self):
-        return self.name + " by " + self.artist + " - " + self.type + " " + str(self.year)
+        return self.name + " by " + self.artist + " - " + self.type + " " + self.year
 
 
 class AlbumGenre(models.Model):
@@ -51,7 +52,7 @@ class ComicBook(Collectible):
     illustrator = models.CharField(max_length=50)
 
     def __str__(self):
-        return self.name + " written by " + self.author + " illustrated by " + self.illustrator + " - " + self.type + " " + str(self.year)
+        return self.name + " written by " + self.author + " illustrated by " + self.illustrator + " - " + self.type + " " + self.year
 
 
 class ComicGenre(models.Model):
@@ -67,14 +68,14 @@ class SportCard(Collectible):
     sport = models.CharField(max_length=20)
 
     def __str__(self):
-        return self.name + " " + self.sport + " " + self.type + " " + str(self.year)
+        return self.name + " " + self.sport + " " + self.type + " " + self.year
 
 
 class Custom(Collectible):
     description = models.CharField(max_length=250)
 
     def __str__(self):
-        return self.name + " " + self.type + " " + str(self.year) + " " + self.description
+        return self.name + " " + self.type + " " + self.year + " " + self.description
 
 class Order(models.Model):
     orderId = models.IntegerField(primary_key=True)
@@ -84,7 +85,7 @@ class Order(models.Model):
     userName = models.CharField(max_length=50)
 
     def __str__(self):
-        return str(self.orderId) + " " + self.sourceAddress + " " + str(self.totalValue) + " " + str(self.userID) + " " + self.userName
+        return self.orderId + " " + self.sourceAddress + " " + self.totalValue + " " + self.userID + " " + self.userName
 
 
 class Fulfills(models.Model):
@@ -101,7 +102,7 @@ class Fulfills(models.Model):
         unique_together = (('userID', 'userName', 'orderID'))
 
     def __str__(self):
-        return str(self.userID) + " " + str(self.userName) + " " + str(self.orderID) + " " + str(self.shippingCost)
+        return self.userID + " " + self.userName + " " + self.orderID+" " + self.shippingCost
 
 
 class Payment(models.Model):
@@ -112,7 +113,7 @@ class Payment(models.Model):
         Order, related_name='orderIDPayment', on_delete=models.CASCADE, default=-1)
 
     def __str__(self):
-        return str(self.paymentNo) + " " + str(self.totalValue) + " " + self.formOfPayment + " " + str(self.orderID)
+        return self.paymentNo + " " + self.totalValue + " " + self.formOfPayment + " " + self.orderID
 
 class Admin(models.Model):
     userName = models.CharField(max_length=50)
@@ -132,19 +133,20 @@ class Deals_With(models.Model):
         unique_together = (('orderID', 'adminUsername'))
 
     def __str__(self):
-        return str(self.adminUsername) + " " + str(self.orderID)
+        return self.adminUsername + " " + self.orderID
 
 class Manages(models.Model):
 
-    id = models.IntegerField(primary_key=True, default=-1)
+    model = models.ForeignKey(ContentType, on_delete=models.CASCADE, default=None)
+    id = GenericForeignKey('model', 'id')
     adminUsername = models.ForeignKey(
         Admin, related_name='adminUsernameManages', on_delete=models.CASCADE, default=-1)   
 
     class Meta:
-        unique_together = (('id', 'adminUsername'))
+        unique_together = (('model', 'adminUsername'))
 
     def __str__(self):
-        return str(self.id) + " " + str(self.adminUsername)
+        return self.id + " " + self.adminUsername
 
 
 class Collection(models.Model):
@@ -154,25 +156,26 @@ class Collection(models.Model):
         return self.collection_name
 
 class Forms(models.Model):
-    collectible_id = models.IntegerField(default=-1) 
+    collectible_id = GenericRelation(Collectible)
     collection_name = models.ForeignKey(
-        Collection, related_name='collectionNameForms', on_delete=models.CASCADE, default=-1, primary_key=True)
+        Collection, related_name='collectionNameForms', on_delete=models.CASCADE, default=-1)
 
     def __str__(self):
-        return str(self.id) + " " + str(self.collection_name)
+        return self.id + " " + self.collection_name
 
 
 class Made_Of(models.Model):
-    id = models.IntegerField(primary_key=True, default=-1)
+    model = models.ForeignKey(ContentType, on_delete=models.CASCADE, default=None)
+    id = GenericForeignKey('model', 'id')
     order_id = models.ForeignKey(
         Order, related_name='orderIdMadeOf', on_delete=models.CASCADE, default=-1)
    
     class Meta:
-        unique_together = (('id', 'order_id'))
+        unique_together = (('model', 'order_id'))
 
 
     def __str__(self):
-        return str(self.id) + " " + str(self.order_id)
+        return self.id + " " + self.order_id
 
 class Wants(models.Model):
 
@@ -187,7 +190,7 @@ class Wants(models.Model):
         unique_together = (('userID', 'userName', 'collectionName'))
 
     def __str__(self):
-        return str(self.userID) + " " + str(self.userName) + " " + str(self.collectionName)
+        return self.userID + " " + self.username + " " + self.collectionName
 
 
 class Sells(models.Model):
@@ -196,14 +199,15 @@ class Sells(models.Model):
         Client, related_name='userIDSells', on_delete=models.CASCADE, default=-1) 
     username = models.ForeignKey(
         Client, related_name='usernameSells', on_delete=models.CASCADE, default=-1) 
-    id = models.IntegerField(primary_key=True, default=-1)
+    model = models.ForeignKey(ContentType, on_delete=models.CASCADE, default=None)
+    id = GenericForeignKey('model', 'id')
     price = models.FloatField()
 
     class Meta:
-        unique_together = (('userID', 'id', 'username'))
+        unique_together = (('userID', 'model', 'username'))
 
     def __str__(self):
-        return str(self.userID) + " " + str(self.username) + " " + str(self.id) + " " + str(self.price)
+        return self.userID + " " + self.userName + " " + self.id + " " + self.price
 
 class UserCollection(models.Model):
 
@@ -217,21 +221,24 @@ class UserCollection(models.Model):
         unique_together = (('userID', 'userName','collectionName'))
 
     def __str__(self):
-        return str(self.userID) + " " + str(self.userName) + " " + self.collectionName
+        return self.userID + " " + self.username + " " + self.collectionName
 
 class Consists_Of(models.Model):
 
     userID = models.ForeignKey(
         UserCollection, related_name='userIDConsists_Of', on_delete=models.CASCADE, default=-1) 
-    collectible_id = models.IntegerField(default=-1)
+    model = models.ForeignKey(ContentType, on_delete=models.CASCADE, default=None)
+    id = GenericForeignKey('model', 'id')
     collectionName = models.ForeignKey(
         UserCollection, related_name='collectionNameConsists_Of', on_delete=models.CASCADE, default=-1) 
 
     class Meta:
-        unique_together = (('userID', 'collectible_id','collectionName'))
+        unique_together = (('userID', 'model','collectionName'))
 
     def __str__(self):
-        return str(self.userID) + " " + str(self.id) + " " + str(self.collectionName)
+        return self.userID + " " + self.id + " " + self.collectionName
+
+
 
 class Moderates(models.Model):
     
@@ -243,10 +250,10 @@ class Moderates(models.Model):
         Admin, related_name='adminUsernameModerates', on_delete=models.CASCADE, default=-1) 
 
     class Meta:
-        unique_together = (('userID', 'username','adminUsername'))      #CHECK########
+        unique_together = (('userID', 'username','adminUsername'))
 
     def __str__(self):
-        return str(self.userID) + " " + str(self.username) + " " + str(self.adminUsername)
+        return self.userID + " " + self.username + " " + self.adminUsername
 
 
 class Warehouse (models.Model):
@@ -258,7 +265,7 @@ class Warehouse (models.Model):
         Client, related_name='userIDWarehouse', unique=False, on_delete=models.CASCADE, default=-1)
 
     def __str__(self):
-        return self.address + " " + str(self.warehouseNumber) + " " + str(self.username) + " " + str(self.userID)
+        return self.address + " " + self.warehouseNumber + " " + self.username + " " + self.userID
 
 
 class Shipping_Method(models.Model):
@@ -269,5 +276,8 @@ class Shipping_Method(models.Model):
         Client, related_name='userIDShipping_Method', on_delete=models.CASCADE, default=-1)
     shippingMethod = models.CharField(max_length=50)
 
+    class Meta:
+        unique_together = (('userID', 'username'))
+
     def __str__(self):
-        return str(self.userID) + " " + str(self.username) + " " + self.shippingMethod
+        return self.userID + " " + self.username + " " + self.shippingMethod

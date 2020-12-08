@@ -7,7 +7,6 @@ from .models import *
 # Create your views here.
 class ClientList (APIView):
     def get(self, request, format=None):
-        print(request)
         clients = Client.objects.all()
         serializer = ClientSerializer(clients, many=True)
         return Response(serializer.data)
@@ -135,19 +134,19 @@ class CollectorDetail(APIView):
     def delete(self, request, id=None, user=None, clientname=None, num=None, format=None):
         if id != None and user != None:
             client = Client.objects.filter(
-            userid=id, username=user, cFlag=1).first()
+            userid=id, username=user, cFlag=1)
         elif id != None:
             client = Client.objects.filter(
-            userid=id, cFlag=1).first()
+            userid=id, cFlag=1)
         elif user != None:
             client = Client.objects.filter(
-            username=user, cFlag=1).first()
+            username=user, cFlag=1)
         elif clientname != None:
             client = Client.objects.filter(
-            name=clientname, cFlag=1).first()
+            name=clientname, cFlag=1)
         else:
             client = Client.objects.filter(
-            phonenumber=num, cFlag=1).first()
+            phonenumber=num, cFlag=1)
         client.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -210,6 +209,19 @@ class SellerList(APIView):
     
     def post(self, request, format=None):
         serializer = ClientSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CollectibleList (APIView):
+    def get(self, request, format=None):
+        collectibles = Collectible.objects.all()
+        serializer = CollectibleSerializer(collectibles, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = CollectibleSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -339,7 +351,7 @@ class AlbumDetail(APIView):
         elif artistName != None:
             album = Album.objects.filter(artist=artistName)
         elif albumType != None:
-            album = Album.objects.filter(type=albumType).first()
+            album = Album.objects.filter(type=albumType)
         else:
             album = Album.objects.filter(year=release)
         serializer = AlbumSerializer(album, many=True)
@@ -440,7 +452,7 @@ class SportCardDetails(APIView):
             sport = SportCard.objects.filter(type=cardType)
         else:
             sport = SportCard.objects.filter(year=release)
-        serializer = SportCardSerializer(sport)
+        serializer = SportCardSerializer(sport, many=True)
         return Response(serializer.data)
 
     def put(self, request, id=None, cardName=None, cardType=None, sportName=None, release=None, format=None):
@@ -493,13 +505,23 @@ class CustomList(APIView):
 
 class CustomDetails(APIView):
 
-    def get(self, request, pk, format=None):
-        custom = Custom.objects.get(pk=pk)
-        serializer = CustomSerializer(custom)
+    def get(self, request, id=None, collectibleName=None, collectibleType=None, format=None):
+        if id != None:
+            custom = Custom.objects.filter(id=id)
+        elif collectibleName != None:
+            custom = Custom.objects.filter(name=collectibleName)
+        else:
+            custom = Custom.objects.filter(type=collectibleType)
+        serializer = CustomSerializer(custom, many=True)
         return Response(serializer.data)
 
-    def put(self, request, pk, format=None):
-        custom = Custom.objects.filter(pk=pk).first()
+    def put(self, request, id=None, collectibleName=None, collectibleType=None, format=None):
+        if id != None:
+            custom = Custom.objects.filter(id=id).first()
+        elif collectibleName != None:
+            custom = Custom.objects.filter(name=collectibleName).first()
+        else:
+            custom = Custom.objects.filter(type=collectibleType).first()
         serializer = CustomSerializer(custom, data=request.data)
         print(custom)
         if serializer.is_valid():
@@ -508,8 +530,13 @@ class CustomDetails(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
-        custom = Custom.objects.filter(pk=pk)
+    def delete(self, request, id=None, collectibleName=None, collectibleType=None, format=None):
+        if id != None:
+            custom = Custom.objects.filter(id=id)
+        elif collectibleName != None:
+            custom = Custom.objects.filter(name=collectibleName)
+        else:
+            custom = Custom.objects.filter(type=collectibleType)
         custom.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -528,14 +555,20 @@ class FormsList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class formsDetails(APIView):
-    def get(self, request, pk, format=None):
-        forms = Forms.objects.get(pk=pk)
-        serializer = FormsSerializer(forms)
+class FormsDetails(APIView):
+    def get(self, request, name=None, id=None, format=None):
+        if(name != None):
+            forms = Forms.objects.filter(collection_name=name)
+        else:
+            forms = Forms.objects.filter(collectible_id=id)
+        serializer = FormsSerializer(forms, many=True)
         return Response(serializer.data)
 
-    def put(self, request, pk, format=None):
-        forms = Forms.objects.filter(pk=pk).first()
+    def put(self, request, name=None, id=None, format=None):
+        if(name != None):
+            forms = Forms.objects.filter(collection_name=name).first()
+        else:
+            forms = Forms.objects.filter(collectible_id=id).first()
         serializer = FormsSerializer(forms, data=request.data)
         print(forms)
         if serializer.is_valid():
@@ -544,8 +577,11 @@ class formsDetails(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
-        forms = Forms.objects.filter(pk=pk)
+    def delete(self, request, name=None, id=None, format=None):
+        if(name != None):
+            forms = Forms.objects.filter(collection_name=name)
+        else:
+            forms = Forms.objects.filter(collectible_id=id)
         forms .delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -565,13 +601,19 @@ class MadeOfList(APIView):
 
 
 class MadeOfDetails(APIView):
-    def get(self, request, pk, format=None):
-        madeOf = Made_Of.objects.get(pk=pk)
-        serializer = MadeOfSerializer(madeOf)
+    def get(self, request, oID=None, id=None, format=None):
+        if oID != None:
+            madeOf = Made_Of.objects.filter(order_id=oID)
+        else:
+            madeOf = Made_Of.objects.filter(id=id)
+        serializer = MadeOfSerializer(madeOf, many=True)
         return Response(serializer.data)
 
-    def put(self, request, pk, format=None):
-        madeOf = Made_Of.objects.filter(pk=pk).first()
+    def put(self, request, oID=None, id=None, format=None):
+        if oID != None:
+            madeOf = Made_Of.objects.filter(order_id=oID).first()
+        else:
+            madeOf = Made_Of.objects.filter(id=id).first()
         serializer = MadeOfSerializer(madeOf, data=request.data)
         print(madeOf)
         if serializer.is_valid():
@@ -580,8 +622,11 @@ class MadeOfDetails(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
-        madeOf = Made_Of.objects.filter(pk=pk)
+    def delete(self, request, oID=None, id=None, format=None):
+        if oID != None:
+            madeOf = Made_Of.objects.filter(order_id=oID)
+        else:
+            madeOf = Made_Of.objects.filter(id=id)
         madeOf.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -637,15 +682,15 @@ class FulfillsList(APIView):
 
 
 class FulfillsDetails(APIView):
-    def get(self, request, pk, userName, orderID, format=None):
+    def get(self, request, id=None, user=None, oID=None, format=None):
         fulfills = Fulfills.objects.get(
-            pk=pk, userName=userName, orderID=orderID)
+            userID=id, orderID=oID, userName=user)
         serializer = FulfillsSerializer(fulfills)
         return Response(serializer.data)
 
-    def put(self, request, pk, userName, orderID, format=None):
+    def put(self, request, id, userName, orderID, format=None):
         fulfills = Fulfills.objects.filter(
-            pk=pk, userName=userName, orderID=orderID).first()
+            id=id, userName=userName, orderID=orderID).first()
         serializer = FulfillsSerializer(fulfills, data=request.data)
         print(fulfills)
         if serializer.is_valid():
@@ -654,9 +699,9 @@ class FulfillsDetails(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, userName, orderID, format=None):
+    def delete(self, request, id, userName, orderID, format=None):
         fulfills = Fulfills.objects.filter(
-            pk=pk, userName=userName, orderID=orderID)
+            id=id, userName=userName, orderID=orderID)
         fulfills.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -712,12 +757,12 @@ class ShippingMethodList(APIView):
 class ShippingMethodDetail(APIView):
 
     def get(self, request, id, user, format=None):
-        shipping = Shipping_Method.objects.get (userID=id, userName=user)
+        shipping = Shipping_Method.objects.get (userID=id, username=user)
         serializer = ShippingMethodSerializer(shipping)
         return Response (serializer.data)
 
     def put(self, request, id, user, format=None):
-        shipping = Shipping_Method.objects.filter(userID=id, userName=user).first()
+        shipping = Shipping_Method.objects.filter(userID=id, username=user).first()
         serializer = ShippingMethodSerializer(shipping, data=request.data)
         if serializer.is_valid ( ):
             print(request.data)
@@ -780,7 +825,7 @@ class WarehouseDetail(APIView):
 class ModeratesList(APIView):
     def get(self, request, format=None):
         moderates = Moderates.objects.all()
-        serializer = WarehouseSerializer(moderates, many=True)
+        serializer = ModeratesSerializer(moderates, many=True)
         return Response(serializer.data)
     
     def post(self, request, format=None):
@@ -793,7 +838,7 @@ class ModeratesList(APIView):
 class ModeratesDetail(APIView):
 
     def get(self, request, id, user, format=None):
-        moderates = Moderates.objects.get (userID=id, userName=user)
+        moderates = Moderates.objects.filter(userID=id, userName=user)
         serializer = ModeratesSerializer(moderates)
         return Response (serializer.data)
 
@@ -861,7 +906,7 @@ class ConsistsOfList(APIView):
 class ConsistsOfDetail(APIView):
 
     def get(self, request, id, userid, format=None):
-        consist = Consists_Of.objects.get (userID=userid, ID=id)
+        consist = Consists_Of.objects.filter(userID=userid, ID=id)
         serializer = ConsistsOfSerializer(consist)
         return Response (serializer.data)
 
@@ -962,13 +1007,13 @@ class CollectionList(APIView):
 
 class CollectionDetail(APIView):
 
-    def get(self, request, pk, format=None):
-        collection = Collection.objects.get (pk=pk)
+    def get(self, request, name, format=None):
+        collection = Collection.objects.get (collection_name=name)
         serializer = CollectionSerializer(collection)
         return Response (serializer.data)
 
-    def put(self, request, pk, format=None):
-        collection = Collection.objects.filter(pk=pk).first()
+    def put(self, request, name, format=None):
+        collection = Collection.objects.filter(collection_name=name).first()
         serializer = CollectionSerializer(collection, data=request.data)
         if serializer.is_valid ( ):
             print(request.data)
@@ -976,8 +1021,8 @@ class CollectionDetail(APIView):
             return Response (serializer.data)
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
-        collection = Collection.objects.filter(pk=pk)
+    def delete(self, request, name, format=None):
+        collection = Collection.objects.filter(collection_name=name)
         collection.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

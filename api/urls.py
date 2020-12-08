@@ -26,6 +26,9 @@ urlpatterns = [
     path('search/clients/collectors/phone/<int:num>', views.CollectorDetail().as_view()),
     path('search/clients/sellers/phone/<int:num>', views.SellerDetail().as_view()),
 
+    #List all collectibles
+    path('collectibles/', views.CollectibleList.as_view()),
+
     #List albums
     path('collectibles/albums/', views.AlbumList.as_view()),
 
@@ -36,7 +39,7 @@ urlpatterns = [
     path('search/collectibles/albums/artist/<str:artistName>', views.AlbumDetail.as_view()),
     path('search/collectibles/albums/releaseyear/<int:release>', views.AlbumDetail.as_view()),
 
-    #Album genres
+    #Album genres --- FIX ----
     path('collectibles/albumGenre/', views.AlbumGenreList.as_view()),
     path('search/collectibles/albumGenre/<int:pk>',
          views.AlbumGenreDetails.as_view()),
@@ -68,37 +71,77 @@ urlpatterns = [
 
     #Listing all custom collectibles
     path('collectibles/custom/', views.CustomList.as_view()),
-    path('search/collectibles/custom/<int:pk>', views.CustomDetails.as_view()),
+
+    #Searching custom collectibles
+    path('search/collectibles/custom/<int:id>', views.CustomDetails.as_view()),
+    path('search/collectibles/custom/<str:collectibleName>', views.CustomDetails.as_view()),
+    path('search/collectibles/custom/type/<str:collectibleType>', views.CustomDetails.as_view()),
+
+    #Listing all form relations
     path('collectibles/forms/', views.FormsList.as_view()),
-    path('search/collectibles/forms/<int:pk>', views.formsDetails.as_view()),
-    path('collectibles/madeOf/', views.MadeOfList.as_view()),
-    path('search/collectibles/madeOf/<int:pk>', views.MadeOfDetails.as_view()),
+
+    #Searching forms
+    path('search/collectibles/forms/<int:id>', views.FormsDetails.as_view()),
+    path('search/collectibles/forms/<str:name>', views.FormsDetails.as_view()),
+
+    #Listing all made of relations
+    path('order/madeOf/', views.MadeOfList.as_view()),
+
+    #Searching made of
+    path('search/order/madeOf/<int:oID>', views.MadeOfDetails.as_view()),
+    path('search/order/madeOf/collectibles/<int:id>', views.MadeOfDetails.as_view()),
+
+    #Listing all orders
     path('order/', views.OrderList.as_view()),
     path('search/order/<int:pk>', views.OrderListDetails.as_view()),
+
+    #Searching fulfills
     path('order/fulfills/', views.FulfillsList.as_view()),
-    path('search/order/fulfills/<int:pk>/<str:userName>/<int:orderID>',
+    path('search/order/fulfills/<int:oID>/<int:id>/<str:user>',       ##############CHECK##############
          views.FulfillsDetails.as_view()),
+    
+    #List all payments
     path('payment/', views.PaymentList.as_view()),
     path('search/payment/<int:pk>', views.PaymentDetails.as_view()),
+
+    #List all warehouses
     path('warehouse/', views.WarehouseList.as_view()),
+
+    #Searching warehouses
     path('search/warehouse/<int:id>', views.WarehouseDetail.as_view()),
-    path('search/warehouse/user/<int:id>', views.WarehouseListUser.as_view()),    #search warehouses by userid
+    path('search/warehouse/user/<int:id>', views.WarehouseListUser.as_view()),
+
+    #List all shipping methods
     path('shipping_method/', views.ShippingMethodList.as_view()),
-    path('search/shipping_method/<int:id>/<str:user>', views.ShippingMethodDetail.as_view()),
+
+    #Searching shipping methods
+    path('search/shipping_method/<int:id>/<str:user>', views.ShippingMethodDetail.as_view()),       ##########CHECK############
+
+    #List all moderates relations
     path('moderates/', views.ModeratesList.as_view()),
-    path('search/moderates/<int:id>/<str:user>', views.ModeratesDetail.as_view()),
+
+    #Searching moderates relations
+    path('search/moderates/<int:id>/<str:user>', views.ModeratesDetail.as_view()),             ##########CHECK############
+
+    #Listing user collections
     path('user_collection/', views.UserCollectionList.as_view()),
-    path('search/user_collection/<int:id>/<str:user>', views.UserCollectionDetail.as_view()),
+
+    #Searching user collections
+    path('search/user_collection/<int:id>/<str:user>', views.UserCollectionDetail.as_view()),            ##########CHECK############
+
+    #Listing all consists of relations
     path('consists_of/', views.ConsistsOfList.as_view()),
-    path('search/consists_of/<int:id>/<int:userid>', views.ConsistsOfDetail.as_view()),
+    path('search/consists_of/<int:id>/<int:userid>', views.ConsistsOfDetail.as_view()),                  ##########CHECK############
     path('sells/', views.SellsList.as_view()),
-    path('search/sells/<int:id>/<int:userid>/<str:user>', views.SellsDetail.as_view()),
+    path('search/sells/<int:id>/<int:userid>/<str:user>', views.SellsDetail.as_view()),             ##########CHECK############
     path('wants/', views.WantsList.as_view()),
-    path('search/wants/<int:id>/<str:user>', views.WantsDetail.as_view()),
+    path('search/wants/<int:id>/<str:user>', views.WantsDetail.as_view()),                     ##########CHECK############]
+
     path('collection/', views.CollectionList.as_view()),
-    path('search/collection/<int:id>', views.CollectionDetail.as_view()),
+    path('search/collection/<str:name>', views.CollectionDetail.as_view()),
+
     path('manages/', views.ManagesList.as_view()),
-    path('search/manages/<int:id>/<str:user>', views.ManagesDetail.as_view()),
+    path('search/manages/<int:id>/<str:user>', views.ManagesDetail.as_view()),                      ##########CHECK############
     path('api/admin/', views.AdminList.as_view()),
     path('dealswith/', views.DealsWithList.as_view()),
     path('search/dealswith/<int:id>', views.DealsWithDetail.as_view()),

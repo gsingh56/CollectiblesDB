@@ -1,4 +1,4 @@
-from django.db.models import fields
+from rest_framework.fields import Field
 from rest_framework import serializers
 from . import models
 
@@ -9,6 +9,7 @@ class ClientSerializer(serializers.ModelSerializer):
 
 class AlbumGenreSerializer(serializers.ModelSerializer):
     genre = serializers.CharField(max_length=20)
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         genre_representation = representation.pop('genre')
@@ -34,6 +35,7 @@ class AlbumSerializer(serializers.ModelSerializer):
         genres = list(genres)
         instance.id = validated_data.get('id', instance.id)
         instance.name = validated_data.get('name', instance.name)
+        instance.artist = validated_data.get('artist', instance.artist)
         instance.type = validated_data.get('type', instance.type)
         instance.year = validated_data.get('year', instance.year)
         instance.save()
@@ -47,7 +49,7 @@ class AlbumSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Album
-        fields = ('id', 'name', 'artist', 'genre', 'year', )
+        fields = ('id', 'name', 'artist', 'genre', 'year', 'type')
 
 
 class ComicGenreSerializer(serializers.ModelSerializer):
@@ -73,6 +75,25 @@ class ComicBookSerializer(serializers.ModelSerializer):
             models.ComicGenre.objects.create(comicID=comic, **genre_data)
         return comic
 
+    def update(self, instance, validated_data):
+        genres_data = validated_data.pop('genre')
+        genres = (instance.genre).all()
+        genres = list(genres)
+        instance.id = validated_data.get('id', instance.id)
+        instance.name = validated_data.get('name', instance.name)
+        instance.author = validated_data.get('author', instance.author)
+        instance.illustrator = validated_data.get('illustrator', instance.illustrator)
+        instance.type = validated_data.get('type', instance.type)
+        instance.year = validated_data.get('year', instance.year)
+        instance.save()
+
+        for genre_data in genres_data:
+            genre = genres.pop(0)
+            genre.comicID = genre_data.get('comicID', genre.comicID)
+            genre.genre = genre_data.get('genre', genre.genre)
+            genre.save()
+        return instance
+
     class Meta:
         model = models.ComicBook
         fields = ('id', 'name', 'author', 'illustrator', 'genre', 'year')
@@ -81,15 +102,15 @@ class ComicBookSerializer(serializers.ModelSerializer):
 class SportCardSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.SportCard
-        fields = '__all__'
+        fields = ('id', 'name', 'type', 'sport', 'year')
 
 
 class CustomSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models. Custom
+        model = models.Custom
         fields = '__all__'
 
-class CollectibleSerializer(serializers.RelatedField):
+class CollectibleField(Field):
     
     def to_representation(self, value):
         if isinstance(value, models.Album):
@@ -99,8 +120,34 @@ class CollectibleSerializer(serializers.RelatedField):
         elif isinstance(value, models.ComicBook):
             return ComicBookSerializer(value).data
         return CustomSerializer(value).data
+    
+    def to_internal_value(self, data):
+        collectible_type = data.pop('collectibleID')
+        if collectible_type == 'Album':
+            serializer = AlbumSerializer(data)
+        elif collectible_type == 'ComicBook':
+            serializer = ComicBookSerializer(data)
+        elif collectible_type == 'SportCard':
+            serializer = SportCardSerializer(data)
+        else:
+            serializer = CustomSerializer(data)
+        if serializer.is_valid():
+            obj = serializer.save()
+        else:
+            raise serializers.ValidationError(serializer.errors)
+
+        return obj
+
+class CollectibleSerializer(serializers.ModelSerializer):
+    collectibleID = CollectibleField()
+
+    class Meta:
+        model = models.Collectible
+        fields = '__all__'
 
 class FormsSerializer(serializers.ModelSerializer):
+    
+
     class Meta:
         model = models.Forms
         fields = '__all__'
@@ -151,7 +198,6 @@ class UserCollectionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ConsistsOfSerializer(serializers.ModelSerializer):
-    id = CollectibleSerializer(read_only=True, many=True)
 
     class Meta:
         model = models.Consists_Of
