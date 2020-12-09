@@ -6,12 +6,13 @@ from . import models
 class ClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Client
-        fields = ('username', 'phonenumber', 'name')
+        fields = ('username', 'password', 'phonenumber', 'name', 'cFlag')
 
 class SellerSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = models.Client
-        fields = ('username', 'phonenumber', 'name', 'website')
+        fields = ('username', 'password', 'phonenumber', 'name', 'website', 'sFlag')
 
 class AlbumGenreSerializer(serializers.ModelSerializer):
     genre = serializers.CharField(max_length=20)
@@ -104,7 +105,7 @@ class ComicBookSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ComicBook
-        fields = ('id', 'name', 'author', 'illustrator', 'genre', 'year')
+        fields = ('id', 'name', 'author', 'illustrator', 'genre', 'type', 'year')
 
 
 class SportCardSerializer(serializers.ModelSerializer):

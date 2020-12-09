@@ -2,6 +2,10 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    #Authenticate
+    path('client/authenticate/<str:user>/<str:pwd>', views.ClientAuthentication.as_view()),
+    path('admin/authenticate/<str:user>/<str:pwd>', views.AdminAuthentication.as_view()),
+
     # List clients
     path('clients/', views.ClientList.as_view()),
 
@@ -10,7 +14,6 @@ urlpatterns = [
     path('clients/sellers/', views.SellerList().as_view()),
 
     # Searching clients
-    path('search/clients/', views.ClientList.as_view()),
     path('search/clients/<str:user>', views.ClientDetail.as_view()),
     path('search/clients/name/<str:clientname>', views.ClientDetail.as_view()),
     path('search/clients/phone/<str:num>', views.ClientDetail.as_view()),
@@ -39,7 +42,6 @@ urlpatterns = [
     path('collectibles/albums/', views.AlbumList.as_view()),
 
     # Searching albums
-    path('search/collectibles/albums/', views.AlbumList.as_view()),
     path('search/collectibles/albums/<int:id>', views.AlbumDetail.as_view()),
     path('search/collectibles/albums/<str:albumName>',
          views.AlbumDetail.as_view()),
@@ -56,11 +58,11 @@ urlpatterns = [
     path('collectibles/comicBooks/', views.ComicBookList.as_view()),
 
     # Searching comic books
-    path('search/collectibles/comicBooks/',
-         views.ComicBookList.as_view()),
     path('search/collectibles/comicBooks/<int:id>',
          views.ComicBookDetails.as_view()),
     path('search/collectibles/comicBooks/<str:comicName>',
+         views.ComicBookDetails.as_view()),
+    path('search/collectibles/comicBooks/type/<str:comicType>',
          views.ComicBookDetails.as_view()),
     path('search/collectibles/comicBooks/author/<str:authorName>',
          views.ComicBookDetails.as_view()),
@@ -95,12 +97,13 @@ urlpatterns = [
          views.CustomDetails.as_view()),
     path('search/collectibles/custom/type/<str:collectibleType>',
          views.CustomDetails.as_view()),
+    path('search/collectibles/custom/releaseyear/<int:release>',
+         views.CustomDetails.as_view()),
 
     # Listing all form relations
     path('collectibles/forms/', views.FormsList.as_view()),
 
     # Searching forms
-    path('search/collectibles/forms/', views.FormsList.as_view()),
     path('search/collectibles/forms/<int:id>', views.FormsDetails.as_view()),
     path('search/collectibles/forms/<str:name>', views.FormsDetails.as_view()),
 
@@ -115,24 +118,23 @@ urlpatterns = [
     # Listing all orders
     path('order/', views.OrderList.as_view()),
 
-    #Searching orders
+    # Searching orders
     path('search/order/<int:pk>', views.OrderDetails.as_view()),
     path('search/order/<str:user>', views.OrderDetails.as_view()),
-    path('search/order/', views.OrderList.as_view()),
+
+    # Listing all fulfulls relaitons
+    path('order/fulfills/', views.FulfillsList.as_view()),
 
     # Searching fulfills
-    path('order/fulfills/', views.FulfillsList.as_view()),
     path('search/order/fulfills/<int:oID>',
          views.FulfillsDetails.as_view()),
      path('search/order/fulfills/<str:user>',
-         views.FulfillsDetails.as_view()),
-    path('search/order/fulfills/<int:oID>/<str:user>',
          views.FulfillsDetails.as_view()),
 
     # List all payments
     path('payment/', views.PaymentList.as_view()),
 
-    #Searching payments
+    # Searching payments
     path('search/payment/<int:pk>', views.PaymentDetails.as_view()),
     path('search/payment/order/<int:oID>', views.PaymentDetails.as_view()),
 
@@ -151,6 +153,8 @@ urlpatterns = [
          views.ShippingMethodDetail.as_view()),
     path('search/shipping_method/method/<str:method>',
          views.ShippingMethodDetail.as_view()),
+    path('search/shipping_method/<str:user>/<str:method>',
+         views.ShippingMethodDetail.as_view()),
 
     # List all moderates relations
     path('moderates/', views.ModeratesList.as_view()),
@@ -167,16 +171,24 @@ urlpatterns = [
          views.UserCollectionDetail.as_view()),
     path('search/user_collection/name/<str:name>',
          views.UserCollectionDetail.as_view()),
+    path('search/user_collection/<str:user>/<str:name>',
+         views.UserCollectionDetail.as_view()),
 
     # Listing all consists of relations
     path('consists_of/', views.ConsistsOfList.as_view()),
 
     #Searching consists of relations
-    path('search/consists_of/<int:id>/<str:user>',
+    path('search/consists_of/collectible/<int:id>/',                         
+         views.ConsistsOfDetail.as_view()),
+    path('search/consists_of/collection/<str:name>',
+         views.ConsistsOfDetail.as_view()),
+    path('search/consists_of/<int:id>/<str:name>',
          views.ConsistsOfDetail.as_view()),
 
     #Listing all sells relations
     path('sells/', views.SellsList.as_view()),
+    path('search/sells/<int:id>/<str:user>',
+         views.SellsDetail.as_view()),
     path('search/sells/<int:id>',
          views.SellsDetail.as_view()),
     path('search/sells/<str:user>',
@@ -190,6 +202,8 @@ urlpatterns = [
          views.WantsDetail.as_view()),
     path('search/wants/collection/<str:name>',
          views.WantsDetail.as_view()),
+    path('search/wants/<str:user>/<str:name>',
+         views.WantsDetail.as_view()),
 
     #Listing all collections
     path('collections/', views.CollectionList.as_view()),
@@ -200,15 +214,23 @@ urlpatterns = [
     #Listing all manages relations
     path('manages/', views.ManagesList.as_view()),
     #Searching manages relations
+    path('search/manages/<int:id>',
+         views.ManagesDetail.as_view()),
+    path('search/manages/<str:user>',
+         views.ManagesDetail.as_view()),
     path('search/manages/<int:id>/<str:user>',
          views.ManagesDetail.as_view()),
 
     #Listing admins
     path('api/admin/', views.AdminList.as_view()),
 
+    #Searching admins
+    path('search/api/admin/<str:user>', views.AdminDetail.as_view()),
+
     #Listing all dealsWith relations
     path('dealsWith/', views.DealsWithList.as_view()),
 
     #Searching dealsWith relations
     path('search/dealsWith/<int:id>', views.DealsWithDetail.as_view()),
+    path('search/dealsWith/<str:user>', views.DealsWithDetail.as_view()),
 ]

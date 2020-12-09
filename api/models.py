@@ -3,13 +3,12 @@ from django.db.models.fields.related import ForeignKey
 
 
 class Client(models.Model):
-    username = models.CharField(primary_key=True,
-        max_length=50)
+    username = models.CharField(primary_key=True, max_length=50)
     password = models.CharField(max_length=250)
     phonenumber = models.CharField(max_length=10)
     name = models.CharField(max_length=50)
-    cFlag = models.IntegerField(blank=True, null=True)
-    sFlag = models.IntegerField(blank=True, null=True)
+    cFlag = models.IntegerField(blank=True)
+    sFlag = models.IntegerField(blank=True)
     website = models.CharField(max_length=50, blank=True)
 
     def __str__(self):
