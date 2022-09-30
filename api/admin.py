@@ -1,3 +1,27 @@
 from django.contrib import admin
+from . models import *
 
+admin.site.register(Client)
+admin.site.register(Album)
+admin.site.register(AlbumGenre)
+admin.site.register(ComicBook)
+admin.site.register(ComicGenre)
+admin.site.register(SportCard)
+admin.site.register(Custom)
+admin.site.register(Forms)
+admin.site.register(Made_Of)
+admin.site.register(Order)
+admin.site.register(Fulfills)
+admin.site.register(Payment)
+admin.site.register(Collection)
+admin.site.register(UserCollection)
+admin.site.register(Warehouse)
+admin.site.register(Shipping_Method)
+admin.site.register(Consists_Of)
+admin.site.register(Sells)
+admin.site.register(Wants)
+admin.site.register(Manages)
+admin.site.register(Admin)
+admin.site.register(Deals_With)
+admin.site.register(Moderates)
 # Register your models here.
